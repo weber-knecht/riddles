@@ -1,128 +1,128 @@
-import { useEffect, useState } from 'preact/hooks'
-import { useRegisterSW } from 'virtual:pwa-register/preact'
+import { useEffect, useMemo, useState } from 'preact/hooks'
+import { Menu } from './shell/Menu'
+import { Solve, type SolveMode } from './shell/Solve'
+import { UpdateBanner } from './shell/UpdateBanner'
+import { pluginById, plugins } from './core/registry'
+import { defaultStore, type SavedGame, type Settings } from './core/storage'
+import { newSeed } from './core/rng'
+import type { Difficulty } from './core/types'
 
-const COUNTER_KEY = 'riddles.test.counter'
+type Screen = { kind: 'menu' } | { kind: 'solve'; puzzleId: string; mode: SolveMode }
 
-function readCounter(): number | null {
-  try {
-    const raw = localStorage.getItem(COUNTER_KEY)
-    return raw === null ? 0 : Number(raw)
-  } catch {
-    return null
+const store = defaultStore()
+
+function loadAllGames(): { games: Record<string, SavedGame | null>; discarded: boolean } {
+  const games: Record<string, SavedGame | null> = {}
+  let discarded = false
+  for (const p of plugins) {
+    const r = store.loadGame(p.logic.id)
+    games[p.logic.id] = r.status === 'ok' ? r.value : null
+    if (r.status === 'discarded') discarded = true
   }
-}
-
-function writeCounter(value: number): boolean {
-  try {
-    localStorage.setItem(COUNTER_KEY, String(value))
-    return true
-  } catch {
-    return false
-  }
-}
-
-function useOnline(): boolean {
-  const [online, setOnline] = useState(navigator.onLine)
-  useEffect(() => {
-    const up = () => setOnline(true)
-    const down = () => setOnline(false)
-    window.addEventListener('online', up)
-    window.addEventListener('offline', down)
-    return () => {
-      window.removeEventListener('online', up)
-      window.removeEventListener('offline', down)
-    }
-  }, [])
-  return online
+  return { games, discarded }
 }
 
 export function App() {
-  const [counter, setCounter] = useState<number | null>(readCounter)
-  const [storageError, setStorageError] = useState(false)
-  const [persisted, setPersisted] = useState<string>('not requested')
-  const [swState, setSwState] = useState('unknown')
-  const online = useOnline()
+  const [screen, setScreen] = useState<Screen>({ kind: 'menu' })
+  const [settings, setSettings] = useState<Settings>(() => store.loadSettings())
+  const [seedInput, setSeedInput] = useState('')
+  const [notice, setNotice] = useState<string | null>(null)
+  const [menuVersion, setMenuVersion] = useState(0)
 
-  const {
-    needRefresh: [needRefresh],
-    offlineReady: [offlineReady],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegisteredSW(_url, registration) {
-      setSwState(registration ? `registered (${registration.active ? 'active' : 'installing'})` : 'registered')
-    },
-    onRegisterError(error) {
-      setSwState(`error: ${String(error)}`)
-    },
-  })
+  const savedGames = useMemo(() => {
+    const { games, discarded } = loadAllGames()
+    if (discarded)
+      setNotice('A saved game from an older version could not be read and was removed.')
+    return games
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuVersion])
 
-  const controlled = 'serviceWorker' in navigator && navigator.serviceWorker.controller !== null
-  const standalone = window.matchMedia('(display-mode: standalone)').matches
+  // Android back gesture: a history entry is pushed when entering the solve screen.
+  useEffect(() => {
+    // The app always starts on the menu, whatever entry the page was reloaded on.
+    history.replaceState({ screen: 'menu' }, '')
+    const onPop = () => {
+      setScreen({ kind: 'menu' })
+      setMenuVersion((v) => v + 1)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
-  function increment() {
-    if (counter === null) return
-    const next = counter + 1
-    if (writeCounter(next)) setCounter(next)
-    else setStorageError(true)
+  function enterSolve(puzzleId: string, mode: SolveMode) {
+    history.pushState({ screen: 'solve' }, '')
+    setScreen({ kind: 'solve', puzzleId, mode })
   }
 
-  async function requestPersist() {
-    try {
-      if (!navigator.storage?.persist) {
-        setPersisted('Storage API unavailable')
-        return
-      }
-      const granted = await navigator.storage.persist()
-      const now = await navigator.storage.persisted()
-      setPersisted(`persist() → ${granted}, persisted() → ${now}`)
-    } catch (error) {
-      setPersisted(`error: ${String(error)}`)
+  function exitSolve() {
+    if ((history.state as { screen?: string } | null)?.screen === 'solve') history.back()
+    else {
+      setScreen({ kind: 'menu' })
+      setMenuVersion((v) => v + 1)
     }
   }
 
+  function onChoice(puzzleId: string, sizeId: string, difficulty: Difficulty) {
+    const next: Settings = {
+      ...settings,
+      lastChoice: { ...settings.lastChoice, [puzzleId]: { sizeId, difficulty } },
+    }
+    setSettings(next)
+    store.saveSettings(next)
+  }
+
+  function onNew(puzzleId: string, sizeId: string, difficulty: Difficulty, seed: string | null) {
+    setSeedInput('')
+    setNotice(null)
+    enterSolve(puzzleId, { kind: 'new', sizeId, difficulty, seed: seed ?? newSeed() })
+  }
+
+  if (screen.kind === 'solve') {
+    const plugin = pluginById[screen.puzzleId]
+    if (!plugin) {
+      setScreen({ kind: 'menu' })
+      return null
+    }
+    return (
+      <>
+        <UpdateBanner />
+        <Solve
+          key={`${screen.puzzleId}:${JSON.stringify(screen.mode)}`}
+          plugin={plugin}
+          mode={screen.mode}
+          store={store}
+          onExit={exitSolve}
+          onNewSame={(game) =>
+            setScreen({
+              kind: 'solve',
+              puzzleId: game.puzzleId,
+              mode: {
+                kind: 'new',
+                sizeId: game.sizeId,
+                difficulty: game.difficulty,
+                seed: newSeed(),
+              },
+            })
+          }
+        />
+      </>
+    )
+  }
+
   return (
-    <main>
-      <h1>Riddles — offline test</h1>
-
-      {needRefresh && (
-        <div class="banner" role="status">
-          A new version is available.
-          <button onClick={() => updateServiceWorker(true)}>Reload</button>
-        </div>
-      )}
-
-      <section>
-        <h2>Counter</h2>
-        <p class="big">{counter === null ? 'localStorage unavailable' : counter}</p>
-        <button onClick={increment} disabled={counter === null}>
-          +1
-        </button>
-        {storageError && <p class="warn">Writing to localStorage failed.</p>}
-      </section>
-
-      <section>
-        <h2>Status</h2>
-        <dl>
-          <dt>Build</dt>
-          <dd>{__BUILD_TIME__}</dd>
-          <dt>Service worker</dt>
-          <dd>{swState}</dd>
-          <dt>Page controlled by SW</dt>
-          <dd>{controlled ? 'yes' : 'no'}</dd>
-          <dt>Offline ready</dt>
-          <dd>{offlineReady ? 'yes' : 'not yet'}</dd>
-          <dt>Network</dt>
-          <dd>{online ? 'online' : 'offline'}</dd>
-          <dt>Display mode</dt>
-          <dd>{standalone ? 'standalone' : 'browser tab'}</dd>
-          <dt>Persistent storage</dt>
-          <dd>
-            {persisted} <button onClick={requestPersist}>Request</button>
-          </dd>
-          <dt>User agent</dt>
-          <dd class="ua">{navigator.userAgent}</dd>
-        </dl>
-      </section>
-    </main>
+    <>
+      <UpdateBanner />
+      <Menu
+        plugins={plugins}
+        savedGames={savedGames}
+        settings={settings}
+        notice={notice}
+        seedInput={seedInput}
+        onSeedInput={setSeedInput}
+        onChoice={onChoice}
+        onContinue={(id) => enterSolve(id, { kind: 'continue' })}
+        onNew={onNew}
+      />
+    </>
   )
 }

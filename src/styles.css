@@ -1,0 +1,239 @@
+:root {
+  --bg: #f6f1e7;
+  --surface: #fffdf8;
+  --fg: #2b2b2b;
+  --muted: #6b6560;
+  --accent: #1f6f8b;
+  --accent-fg: #ffffff;
+  --warn: #a33a2a;
+  --grid-line: #b9b1a4;
+  --grid-bold: #2b2b2b;
+  --ink-given: #2b2b2b;
+  --ink-pen: #1f4e79;
+  --ink-pencil: #7a7369;
+  --selection: #e4ecd8;
+  --fill: #3a3a3a;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1d1b18;
+    --surface: #26231f;
+    --fg: #ece6da;
+    --muted: #a39c92;
+    --accent: #7fc1d8;
+    --accent-fg: #1d1b18;
+    --warn: #e07a6a;
+    --grid-line: #5a544c;
+    --grid-bold: #ece6da;
+    --ink-given: #ece6da;
+    --ink-pen: #9fd0e8;
+    --ink-pencil: #8f877c;
+    --selection: #3a4030;
+    --fill: #d8d2c6;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.5 system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+#app {
+  min-height: 100vh;
+}
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+}
+h1 {
+  font-size: 1.4rem;
+  margin: 0.5rem 0 1rem;
+}
+h2 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+button {
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0 1rem;
+  font: inherit;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--grid-line);
+  border-radius: 8px;
+  touch-action: manipulation;
+}
+button.primary {
+  color: var(--accent-fg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+button.danger {
+  color: var(--warn);
+  border-color: var(--warn);
+}
+button[aria-pressed='true'] {
+  background: var(--selection);
+  border-color: var(--grid-bold);
+}
+button:disabled {
+  opacity: 0.45;
+}
+input[type='text'] {
+  min-height: 48px;
+  padding: 0 0.75rem;
+  font: inherit;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--grid-line);
+  border-radius: 8px;
+  width: 100%;
+}
+.row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.row > button {
+  flex: 1 1 auto;
+}
+.muted {
+  color: var(--muted);
+}
+.warn {
+  color: var(--warn);
+}
+.notice {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--grid-line);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.banner {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  margin: 0 16px 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+
+/* Menu */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--grid-line);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.segmented {
+  display: flex;
+}
+.segmented > button {
+  flex: 1 1 0;
+  border-radius: 0;
+  margin-left: -1px;
+}
+.segmented > button:first-child {
+  border-radius: 8px 0 0 8px;
+  margin-left: 0;
+}
+.segmented > button:last-child {
+  border-radius: 0 8px 8px 0;
+}
+.seed-field {
+  display: grid;
+  gap: 0.25rem;
+  margin: 1.5rem 0;
+}
+footer {
+  margin-top: 2rem;
+  font-size: 0.8rem;
+}
+
+/* Solve */
+.solve-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.solve-header .title {
+  line-height: 1.25;
+}
+.board-frame {
+  width: min(100vw - 32px, 60vh);
+  aspect-ratio: 1;
+  margin: 0 auto 1rem;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.toolrow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+.check-line {
+  min-height: 1.5rem;
+  text-align: center;
+  margin-top: 0.75rem;
+}
+.center {
+  text-align: center;
+  padding: 2rem 0;
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+}
+
+/* Counts board */
+.counts {
+  display: grid;
+  width: 100%;
+  height: 100%;
+}
+.counts .clue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-given);
+  font-weight: 600;
+  font-size: clamp(1rem, 4.5vw, 1.6rem);
+}
+.counts .cell {
+  position: relative;
+  border: 1px solid var(--grid-line);
+  background: var(--surface);
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 0;
+}
+.counts .cell.filled {
+  background: var(--fill);
+}
+.counts .cell .dot {
+  position: absolute;
+  width: 22%;
+  height: 22%;
+  border-radius: 50%;
+  background: var(--ink-pencil);
+  left: 39%;
+  top: 39%;
+}
