@@ -88,7 +88,7 @@ function generate(
 ): { puzzle: CountsPuzzle; solution: CountsSolution } {
   const n = N
   for (let attempt = 0; attempt < 10000; attempt++) {
-    const cells = Array.from({ length: n * n }, () => (rng.next() < 0.5 ? 1 : 0))
+    const cells: number[] = Array.from({ length: n * n }, () => (rng.next() < 0.5 ? 1 : 0))
     const filled = cells.reduce((a, b) => a + b, 0)
     if (filled < 3 || filled > n * n - 3) continue
     const puzzle: CountsPuzzle = { n, ...countsOf(n, cells) }
