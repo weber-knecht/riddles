@@ -13,7 +13,7 @@ Personal puzzle-generator web app for Jakob's Samsung Galaxy A26 5G. One user, n
 
 ## Hard requirements (summary, details in docs/scope.md)
 
-- Runs in the DuckDuckGo Android browser (Android system WebView). Use only broadly supported web standards, no Chrome-only APIs.
+- Runs as a PWA installed from Chrome for Android. DuckDuckGo is unsupported (its data clearing wipes service workers). Still use only broadly supported web standards.
 - Fully offline after the first load: service worker caches the app, saved games live in localStorage.
 - English UI.
 - Pen-and-paper feel: no automatic error marking, no auto candidates, no hints, check only on request.
@@ -23,7 +23,7 @@ Personal puzzle-generator web app for Jakob's Samsung Galaxy A26 5G. One user, n
 - Stack: TypeScript, Vite, Preact. Puzzle generation runs in a Web Worker.
 - Each puzzle type is a plugin: generator, solver, validator, board component. The shell never contains puzzle-specific logic.
 - Every puzzle is reproducible from a seed plus difficulty.
-- Machine has Node 18. No Java, no Android SDK; an APK wrap is the fallback only if the browser test in iteration 0 fails.
+- Node 22 via fnm (`.nvmrc`). No Java, no Android SDK; a Capacitor APK is the fallback only if the Chrome PWA route fails.
 
 ## Conventions
 

@@ -29,9 +29,9 @@ A web app for one person, used on a Samsung Galaxy A26 5G (SM-A266B/DS, 6.7" 108
 
 ## Environment constraints
 
-- Browser: DuckDuckGo Android browser, built on the Android system WebView. Only broadly supported web standards: service workers, localStorage, Web Workers, CSS grid, pointer events.
-- The DuckDuckGo Fire button clears site data unless the site is marked Fireproof. The app must be marked Fireproof on the phone, and iteration 0 (issue #1) verifies that cached files and saved games survive.
-- Add to Home Screen in DuckDuckGo opens the app as a normal tab, not full screen. Accepted.
+- Browser: Chrome for Android, installed as a PWA from the browser menu. Only broadly supported web standards: service workers, localStorage, Web Workers, CSS grid, pointer events.
+- DuckDuckGo is not supported. Its data clearing (Fire button and automatic clearing) deletes service worker registrations and caches regardless of Fireproof, so offline use cannot be guaranteed there. Verified against DuckDuckGo's Android source in issue #1 on 2026-11-07.
+- Installed from Chrome, the app runs full screen in standalone mode and its data persists until the user clears it in Chrome settings.
 - Mobile browsers do not open local HTML files, so the app is loaded once from a web address and then runs from cache.
 - Development machine: Linux, Node 18, no Java, no Android SDK.
 
@@ -74,5 +74,6 @@ None.
 
 ## Resolved decisions
 
+- 2026-11-07: Target browser changed from DuckDuckGo to Chrome for Android after the iteration 0 test failed in DuckDuckGo (see issue #1). The Capacitor APK remains the fallback if Chrome fails too.
 - 2026-11-07: Hosting is GitHub Pages from this repo. Alternatives considered: another free static host, or the Linux machine on the home network with a self-signed certificate.
 - 2026-11-07: Git repository initialised, public GitHub repo weber-knecht/riddles created. Public was chosen so GitHub Pages stays available on the free plan.
