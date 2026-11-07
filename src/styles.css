@@ -41,7 +41,9 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font: 16px/1.5 system-ui, sans-serif;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
 }
@@ -178,7 +180,6 @@ footer {
 }
 .board-frame {
   width: min(100vw - 32px, 60vh);
-  aspect-ratio: 1;
   margin: 0 auto 1rem;
   touch-action: manipulation;
   user-select: none;
@@ -206,7 +207,7 @@ footer {
 .counts {
   display: grid;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1;
 }
 .counts .clue {
   display: flex;
@@ -236,4 +237,77 @@ footer {
   background: var(--ink-pencil);
   left: 39%;
   top: 39%;
+}
+
+/* Sudoku board */
+.sudoku {
+  outline: none;
+}
+.sudoku .grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid var(--grid-bold);
+  background: var(--surface);
+}
+.sudoku .cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid var(--grid-line);
+  border-bottom: 1px solid var(--grid-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-pen);
+  font-size: clamp(1.1rem, 5vw, 1.8rem);
+  line-height: 1;
+  aspect-ratio: 1;
+}
+.sudoku .cell:nth-child(9n) {
+  border-right: 0;
+}
+.sudoku .cell:nth-last-child(-n + 9) {
+  border-bottom: 0;
+}
+.sudoku .cell.box-r {
+  border-right: 2px solid var(--grid-bold);
+}
+.sudoku .cell.box-b {
+  border-bottom: 2px solid var(--grid-bold);
+}
+.sudoku .cell.given {
+  color: var(--ink-given);
+  font-weight: 700;
+}
+.sudoku .cell.selected {
+  background: var(--selection);
+}
+.sudoku .marks {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  color: var(--ink-pencil);
+  font-size: clamp(0.5rem, 2.2vw, 0.75rem);
+  line-height: 1;
+}
+.sudoku .marks span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sudoku .digit-row {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 4px;
+  margin-top: 0.75rem;
+}
+.sudoku .digit-row button {
+  min-width: 0;
+  padding: 0;
+  font-size: 1.3rem;
 }
