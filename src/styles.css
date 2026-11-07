@@ -287,7 +287,7 @@ footer {
 }
 .sudoku .marks {
   position: absolute;
-  inset: 0;
+  inset: 2px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);

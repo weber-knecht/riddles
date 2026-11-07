@@ -58,7 +58,7 @@ Rules:
 - **Uniqueness is the generator's job.** `generate` must return a puzzle with exactly one solution. The solver used to guarantee this is internal to the plugin.
 - **Check is a pure comparison.** `'mistakes'` means some entered value contradicts the solution, `'ok'` means everything entered so far is consistent but incomplete, `'solved'` means the state equals the solution. Pencil marks are ignored.
 - **The board interprets taps per tool.** `pen` enters, `pencil` notes, `erase` clears. Boards never render automatic error marks or candidates.
-- **Sizing.** The shell renders a square frame of `min(100vw - 32px, 60vh)`; the board fills it with `width: 100%; height: 100%` and never sets its own outer size.
+- **Sizing.** The shell renders a frame of width `min(100vw - 32px, 60vh)`. The board draws its grid as a square of that width (`width: 100%; aspect-ratio: 1`) and may place its own controls, such as Sudoku's digit row, underneath. The shell's tool row follows below the frame.
 - **Difficulty** is `easy | medium | hard` everywhere; labels belong to the shell.
 
 Register the plugin in `core/registry.ts` (UI) and its logic in `core/logicRegistry.ts` (worker).
