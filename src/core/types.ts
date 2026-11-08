@@ -31,6 +31,8 @@ export interface PuzzleLogic<P = unknown, S = unknown, St = unknown> {
   version: number
   sizes: SizeOption[]
   supportsPencil: boolean
+  /** Label for the pencil tool when it means something else, e.g. 'Cross'. */
+  pencilLabel?: string
   generate(rng: Rng, sizeId: string, difficulty: Difficulty): { puzzle: P; solution: S }
   initialState(puzzle: P): St
   check(puzzle: P, solution: S, state: St): CheckResult
