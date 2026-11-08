@@ -293,6 +293,59 @@ check('binairo solved screen', (await cdp.text()).includes('Solved'))
 await cdp.click('button', 'Back to menu')
 await sleep(300)
 
+
+// ---- Nonogram ----
+await cdp.navigate(BASE)
+await cdp.click('section[aria-label="Nonogram"] button', 'New ·')
+await cdp.waitFor(`document.querySelector('.nonogram .cell')`, 20000)
+const ng = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.nonogram'))`)
+check('nonogram saved 10x10 with clues and solution', ng.puzzle.n === 10 && ng.puzzle.rows.length === 10 && ng.solution.length === 100, 'seed ' + ng.seed)
+check('nonogram cross button label', await cdp.eval(`[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Cross')`))
+const nCell = async (i, type = 'tap') => {
+  // Dispatch pointer events at the cell centre; the board reads geometry, not targets.
+  await cdp.eval(`(() => {
+    const grid = document.querySelector('.nonogram .grid'); const r = grid.getBoundingClientRect(); const n = ${ng.puzzle.n}
+    const i = ${i}; const x = r.left + ((i % n) + 0.5) * r.width / n; const y = r.top + (Math.floor(i / n) + 0.5) * r.height / n
+    const opts = { bubbles: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'touch', button: 0, isPrimary: true }
+    grid.dispatchEvent(new PointerEvent('pointerdown', opts)); grid.dispatchEvent(new PointerEvent('pointerup', opts)) })()`)
+  await sleep(30)
+}
+const nDrag = async (from, to) => {
+  await cdp.eval(`(() => {
+    const grid = document.querySelector('.nonogram .grid'); const r = grid.getBoundingClientRect(); const n = ${ng.puzzle.n}
+    const at = (i) => [r.left + ((i % n) + 0.5) * r.width / n, r.top + (Math.floor(i / n) + 0.5) * r.height / n]
+    const ev = (type, [x, y]) => grid.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX: x, clientY: y, pointerId: 2, pointerType: 'touch', button: 0, isPrimary: true }))
+    ev('pointerdown', at(${from})); ev('pointermove', at(${from} + 1)); ev('pointermove', at(${to})); ev('pointerup', at(${to})) })()`)
+  await sleep(50)
+}
+const nClass = (i) => cdp.eval(`document.querySelectorAll('.nonogram .cell')[${i}].className`)
+const nEmpties = ng.solution.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0)
+const nFilled = ng.solution.map((v, i) => (v ? i : -1)).filter((i) => i >= 0)
+await nCell(nEmpties[0])
+check('nonogram tap fills', (await nClass(nEmpties[0])).includes('filled'))
+await cdp.click('button', 'Check')
+check('nonogram wrong fill reports mistakes', (await cdp.text()).includes('Contains mistakes.'))
+await cdp.click('button', 'Undo')
+check('nonogram undo clears fill', !(await nClass(nEmpties[0])).includes('filled'))
+await cdp.click('button', 'Cross')
+await nCell(nEmpties[0])
+check('nonogram cross mode marks a cross', (await nClass(nEmpties[0])).includes('cross'))
+await cdp.click('button', 'Check')
+check('nonogram cross ignored by check', (await cdp.text()).includes('Correct so far.'))
+await cdp.click('button', 'Cross')
+// drag along the first row from column 0 to 4
+await nDrag(0, 4)
+const rowFilled = await cdp.eval(`[0,1,2,3,4].every(i => document.querySelectorAll('.nonogram .cell')[i].className.includes('filled'))`)
+check('nonogram drag paints a run', rowFilled)
+await cdp.click('button', 'Undo')
+check('nonogram undo reverts whole stroke', await cdp.eval(`[0,1,2,3,4].every(i => !document.querySelectorAll('.nonogram .cell')[i].className.includes('filled'))`))
+// solve: fill every picture cell via taps (crosses stay, ignored)
+for (const i of nFilled) await nCell(i)
+await cdp.click('button', 'Check')
+check('nonogram solved screen', (await cdp.text()).includes('Solved'))
+await cdp.click('button', 'Back to menu')
+await sleep(300)
+
 // Corrupt record -> notice
 await cdp.eval(`localStorage.setItem('riddles.v1.game.counts', '{"schema":99}')`)
 await cdp.navigate(BASE)

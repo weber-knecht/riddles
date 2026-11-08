@@ -3,6 +3,7 @@ import type { Tool } from '../core/types'
 export interface ToolRowProps {
   tool: Tool
   supportsPencil: boolean
+  pencilLabel?: string
   canUndo: boolean
   onTool(tool: Tool): void
   onUndo(): void
@@ -25,7 +26,7 @@ export function ToolRow(props: ToolRowProps) {
       </button>
       {props.supportsPencil && (
         <button aria-pressed={props.tool === 'pencil'} onClick={() => toggle('pencil')}>
-          Pencil
+          {props.pencilLabel ?? 'Pencil'}
         </button>
       )}
       <button class="primary" onClick={props.onCheck}>

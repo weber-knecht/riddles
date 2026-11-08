@@ -178,6 +178,7 @@ export function Solve(props: SolveProps) {
       <ToolRow
         tool={tool}
         supportsPencil={logic.supportsPencil}
+        pencilLabel={logic.pencilLabel}
         canUndo={game.undo !== null}
         onTool={setTool}
         onUndo={() => game.undo !== null && update(game, { state: game.undo, undo: null })}
