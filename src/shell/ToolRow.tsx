@@ -12,19 +12,21 @@ export interface ToolRowProps {
 export function ToolRow(props: ToolRowProps) {
   const toggle = (t: Tool) => props.onTool(props.tool === t ? 'pen' : t)
   return (
-    <div class="toolrow" role="toolbar" aria-label="Tools">
+    <div
+      class={`toolrow${props.supportsPencil ? '' : ' no-pencil'}`}
+      role="toolbar"
+      aria-label="Tools"
+    >
       <button onClick={props.onUndo} disabled={!props.canUndo}>
         Undo
       </button>
       <button aria-pressed={props.tool === 'erase'} onClick={() => toggle('erase')}>
         Eraser
       </button>
-      {props.supportsPencil ? (
+      {props.supportsPencil && (
         <button aria-pressed={props.tool === 'pencil'} onClick={() => toggle('pencil')}>
           Pencil
         </button>
-      ) : (
-        <span />
       )}
       <button class="primary" onClick={props.onCheck}>
         Check

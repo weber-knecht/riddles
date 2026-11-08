@@ -190,6 +190,9 @@ footer {
   grid-template-columns: repeat(4, 1fr);
   gap: 0.5rem;
 }
+.toolrow.no-pencil {
+  grid-template-columns: repeat(3, 1fr);
+}
 .check-line {
   min-height: 1.5rem;
   text-align: center;
@@ -310,4 +313,37 @@ footer {
   min-width: 0;
   padding: 0;
   font-size: 1.3rem;
+}
+
+/* Binairo board */
+.binairo {
+  outline: none;
+}
+.binairo .grid {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid var(--grid-bold);
+  background: var(--surface);
+}
+.binairo .cell {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  outline: 1px solid var(--grid-line);
+  outline-offset: -0.5px;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-pen);
+  font-size: clamp(0.9rem, 4vw, 1.4rem);
+  line-height: 1;
+  aspect-ratio: 1;
+}
+.binairo .cell.given {
+  color: var(--ink-given);
+  font-weight: 700;
+}
+.binairo .cell.focus {
+  background: var(--selection);
 }

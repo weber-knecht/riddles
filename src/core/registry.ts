@@ -1,6 +1,7 @@
 import type { PuzzlePlugin } from './types'
 import { countsPlugin } from '../puzzles/counts'
 import { sudokuPlugin } from '../puzzles/sudoku'
+import { binairoPlugin } from '../puzzles/binairo'
 
 /**
  * All puzzle plugins in menu order. Plugins are typed with their own
@@ -9,6 +10,7 @@ import { sudokuPlugin } from '../puzzles/sudoku'
  */
 export const plugins: PuzzlePlugin[] = [
   sudokuPlugin as unknown as PuzzlePlugin,
+  binairoPlugin as unknown as PuzzlePlugin,
   countsPlugin as unknown as PuzzlePlugin,
 ]
 

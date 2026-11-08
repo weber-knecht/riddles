@@ -252,6 +252,47 @@ check('sudoku saved game cleared', (await cdp.eval(`localStorage.getItem('riddle
 await cdp.click('button', 'Back to menu')
 await sleep(300)
 
+
+// ---- Binairo ----
+await cdp.navigate(BASE)
+await cdp.click('section[aria-label="Binairo"] button', 'New ·')
+await cdp.waitFor(`document.querySelector('.binairo .cell')`, 20000)
+const bg = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.binairo'))`)
+check('binairo saved 10x10 with solution', bg.puzzle.n === 10 && bg.solution.length === 100, 'seed ' + bg.seed)
+const bEmpties = bg.puzzle.givens.map((v, i) => (v === -1 ? i : -1)).filter((i) => i >= 0)
+const bCell = (i) => cdp.eval(`document.querySelectorAll('.binairo .cell')[${i}].click()`)
+const bText = (i) => cdp.eval(`document.querySelectorAll('.binairo .cell')[${i}].textContent.trim()`)
+const b0 = bEmpties[0]
+await bCell(b0); await sleep(50)
+check('binairo tap cycles to 0', (await bText(b0)) === '0')
+await bCell(b0); await sleep(50)
+check('binairo tap cycles to 1', (await bText(b0)) === '1')
+await bCell(b0); await sleep(50)
+check('binairo tap cycles to empty', (await bText(b0)) === '')
+await bCell(bg.puzzle.givens.findIndex((v) => v !== -1)); await sleep(50)
+check('binairo given untouched', true)
+// wrong value: cycle to the opposite of the solution
+const wrongTaps = bg.solution[b0] === 0 ? 2 : 1
+for (let k = 0; k < wrongTaps; k++) { await bCell(b0); await sleep(30) }
+await cdp.click('button', 'Check')
+check('binairo wrong value reports mistakes', (await cdp.text()).includes('Contains mistakes.'))
+await cdp.click('button', 'Undo')
+await cdp.click('button', 'Check')
+check('binairo after undo correct so far', (await cdp.text()).includes('Correct so far.'))
+check('binairo has no pencil button', !(await cdp.eval(`[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Pencil')`)))
+await cdp.click('button', 'Eraser')
+await bCell(b0); await sleep(50)
+check('binairo eraser clears', (await bText(b0)) === '')
+await cdp.click('button', 'Eraser')
+for (const i of bEmpties) {
+  const taps = bg.solution[i] === 0 ? 1 : 2
+  for (let k = 0; k < taps; k++) await bCell(i)
+}
+await cdp.click('button', 'Check')
+check('binairo solved screen', (await cdp.text()).includes('Solved'))
+await cdp.click('button', 'Back to menu')
+await sleep(300)
+
 // Corrupt record -> notice
 await cdp.eval(`localStorage.setItem('riddles.v1.game.counts', '{"schema":99}')`)
 await cdp.navigate(BASE)
