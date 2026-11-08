@@ -43,7 +43,7 @@ A web app for one person, used on a Samsung Galaxy A26 5G (SM-A266B/DS, 6.7" 108
 - Input model per puzzle type:
   - Sudoku: tap a cell, tap a digit on a fixed number row at the bottom. Toggle between pen and pencil. Tap the same digit again to erase it.
   - Binairo: tap a cell to cycle empty, 0, 1.
-  - Nonogram: tap to fill, long press or a mode toggle to mark a cross. Drag to paint a run of cells.
+  - Nonogram: tap to fill, a mode toggle (Cross) to mark crosses. Drag to paint a run of cells along a row or column.
 
 ## Architecture
 

@@ -37,7 +37,8 @@ interface PuzzleLogic<P, S, St> {
   name: string
   version: number            // generator version, stored with saved games
   sizes: { id: string; label: string }[]
-  supportsPencil: boolean    // shows the Pencil tool
+  supportsPencil: boolean    // shows the pencil tool
+  pencilLabel?: string       // relabels it, e.g. 'Cross' for nonograms
   generate(rng: Rng, sizeId: string, difficulty: Difficulty): { puzzle: P; solution: S }
   initialState(puzzle: P): St
   check(puzzle: P, solution: S, state: St): 'solved' | 'mistakes' | 'ok'
