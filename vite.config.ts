@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite'
 import preact from '@preact/preset-vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import pkg from './package.json'
 
 const BASE = '/riddles/'
 
@@ -12,6 +13,7 @@ export default defineConfig({
     include: ['test/**/*.test.ts'],
   },
   define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
   },
   plugins: [

@@ -59,7 +59,9 @@ export function Menu(props: MenuProps) {
           onInput={(e) => props.onSeedInput((e.currentTarget as HTMLInputElement).value)}
         />
       </label>
-      <footer class="muted">Build {__BUILD_TIME__}</footer>
+      <footer class="muted">
+        v{__APP_VERSION__} · Build {__BUILD_TIME__}
+      </footer>
     </main>
   )
 }

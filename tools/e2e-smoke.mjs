@@ -5,6 +5,7 @@
 //   npx vite preview --port 4174 --strictPort &
 //   chromium --headless=new --disable-gpu --remote-debugging-port=9223 \
 //            --user-data-dir=/tmp/riddles-e2e about:blank &
+//   (snap Chromium: use a directory under ~/snap/chromium/common instead)
 //   node tools/e2e-smoke.mjs http://localhost:4174/riddles/ 9223
 //
 // Clears localStorage of the preview origin. Closes the browser when done.
@@ -114,6 +115,7 @@ await cdp.navigate(BASE)
 let t = await cdp.text()
 check('menu renders', t.includes('Riddles') && t.includes('New · 9×9 · Easy'), t.split('\n')[0])
 check('menu has no placeholder puzzle', !t.includes('Counts'))
+check('footer shows version and build time', /v\d+\.\d+\.\d+ · Build \d{4}-/.test(t), t.split('\n').pop())
 check('no continue initially', !t.includes('Continue ·'))
 
 // ---- Shell, exercised through Sudoku ----
