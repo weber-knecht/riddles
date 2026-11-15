@@ -89,6 +89,12 @@ const cdp = await connect()
 await cdp.ready
 await cdp.send('Page.enable')
 await cdp.send('Runtime.enable')
+// Phone-sized viewport: the Galaxy A26 in the installed app, minus system bars.
+await cdp.send('Emulation.setDeviceMetricsOverride', { width: 411, height: 830, deviceScaleFactor: 2, mobile: true })
+const checkFit = async (name) => {
+  const [scrollH, innerH] = await cdp.eval(`[document.documentElement.scrollHeight, innerHeight]`)
+  check(`${name} fits the phone screen without scrolling`, scrollH <= innerH, `${scrollH} of ${innerH}`)
+}
 process.on('uncaughtException', async (e) => {
   console.log('SCRIPT ERROR', e.message)
   try { console.log('PAGE TEXT:\n' + (await cdp.text())) } catch {}
@@ -127,6 +133,7 @@ await cdp.waitFor(`document.querySelector('.sudoku .cell')`, 20000)
 const sg = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.sudoku'))`)
 check('sudoku saved with 81 givens and solution', sg.puzzle.givens.length === 81 && sg.solution.length === 81, 'seed ' + sg.seed)
 check('header shows seed', (await cdp.text()).includes('Seed ' + sg.seed))
+await checkFit('sudoku')
 check('sudoku renders givens', (await cdp.eval(`document.querySelectorAll('.sudoku .cell.given').length`)) > 20)
 check('digit row disabled without selection', await cdp.eval(`document.querySelector('.sudoku .digit-row button').disabled`))
 const empties = sg.puzzle.givens.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0)
@@ -241,6 +248,7 @@ await cdp.click('section[aria-label="Binairo"] button', 'New ·')
 await cdp.waitFor(`document.querySelector('.binairo .cell')`, 20000)
 const bg = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.binairo'))`)
 check('binairo saved 10x10 with solution', bg.puzzle.n === 10 && bg.solution.length === 100, 'seed ' + bg.seed)
+await checkFit('binairo 10x10')
 const bEmpties = bg.puzzle.givens.map((v, i) => (v === -1 ? i : -1)).filter((i) => i >= 0)
 const bCell = (i) => cdp.eval(`document.querySelectorAll('.binairo .cell')[${i}].click()`)
 const bText = (i) => cdp.eval(`document.querySelectorAll('.binairo .cell')[${i}].textContent.trim()`)
@@ -282,6 +290,7 @@ await cdp.click('section[aria-label="Nonogram"] button', 'New ·')
 await cdp.waitFor(`document.querySelector('.nonogram .cell')`, 20000)
 const ng = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.nonogram'))`)
 check('nonogram saved 10x10 with clues and solution', ng.puzzle.n === 10 && ng.puzzle.rows.length === 10 && ng.solution.length === 100, 'seed ' + ng.seed)
+await checkFit('nonogram 10x10')
 check('nonogram cross button label', await cdp.eval(`[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Cross')`))
 const nCell = async (i, type = 'tap') => {
   // Dispatch pointer events at the cell centre; the board reads geometry, not targets.
@@ -334,6 +343,17 @@ await sleep(300)
 await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', '{"schema":99}')`)
 await cdp.navigate(BASE)
 check('corrupt record notice', (await cdp.text()).includes('could not be read'))
+
+// The larger sizes fit too
+for (const [name, size, sel] of [['Binairo', '12×12', '.binairo'], ['Nonogram', '15×15', '.nonogram']]) {
+  await cdp.navigate(BASE)
+  await cdp.click(`section[aria-label="${name}"] .segmented button`, size)
+  await cdp.click(`section[aria-label="${name}"] button`, 'New ·')
+  await cdp.waitFor(`document.querySelector('${sel} .cell')`, 20000)
+  await checkFit(`${name.toLowerCase()} ${size}`)
+  await cdp.eval(`localStorage.removeItem('riddles.v1.game.${name.toLowerCase()}')`)
+}
+check('zoom gestures disabled', (await cdp.eval(`getComputedStyle(document.documentElement).touchAction`)) === 'pan-x pan-y')
 
 // Data of a removed puzzle type is pruned silently
 await cdp.eval(`(() => {

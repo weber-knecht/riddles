@@ -26,8 +26,10 @@ export default defineConfig({
         start_url: BASE,
         scope: BASE,
         display: 'standalone',
-        background_color: '#f6f1e7',
-        theme_color: '#2b2b2b',
+        orientation: 'portrait',
+        // Dark, like the dark theme: the splash screen does not flash white.
+        background_color: '#1d1b18',
+        theme_color: '#1d1b18',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },

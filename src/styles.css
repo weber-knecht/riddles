@@ -10,7 +10,7 @@
   --grid-bold: #2b2b2b;
   --ink-given: #2b2b2b;
   --ink-pen: #1f4e79;
-  --ink-pencil: #7a7369;
+  --ink-pencil: #6e685e;
   --selection: #e4ecd8;
   --fill: #3a3a3a;
   color-scheme: light dark;
@@ -28,8 +28,8 @@
     --grid-bold: #ece6da;
     --ink-given: #ece6da;
     --ink-pen: #9fd0e8;
-    --ink-pencil: #8f877c;
-    --selection: #3a4030;
+    --ink-pencil: #a8a197;
+    --selection: #353b2c;
     --fill: #d8d2c6;
   }
 }
@@ -46,9 +46,18 @@ body {
     sans-serif;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
+  /* Panning only: no pinch zoom and no double-tap zoom anywhere in the app. */
+  touch-action: pan-x pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+input {
+  user-select: text;
+  -webkit-user-select: text;
 }
 #app {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 main {
   max-width: 40rem;
