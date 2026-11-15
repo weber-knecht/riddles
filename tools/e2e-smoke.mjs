@@ -96,6 +96,14 @@ const checkFit = async (name) => {
   const [scrollH, innerH] = await cdp.eval(`[document.documentElement.scrollHeight, innerHeight]`)
   check(`${name} fits the phone screen without scrolling`, scrollH <= innerH, `${scrollH} of ${innerH}`)
 }
+// The update banner only appears when a new service worker waits, which a single
+// build cannot produce. Its markup is put in by hand to check the layout around it.
+const checkFitWithBanner = async (name) => {
+  await cdp.eval(`document.getElementById('app').insertAdjacentHTML('afterbegin', '<div class="banner" role="status" data-test><span>A new edition is out.</span><button>Reload</button></div>')`)
+  await checkFit(`${name} below the update banner`)
+  const b = await cdp.eval(`(() => { const el = document.querySelector('.banner'), r = el.getBoundingClientRect(), m = document.querySelector('main > *').getBoundingClientRect(), k = el.querySelector('button').getBoundingClientRect(); const out = [r.left, innerWidth - r.right, m.top - r.bottom, k.height, getComputedStyle(el).backgroundColor === getComputedStyle(document.body).color]; el.remove(); return out })()`)
+  check(`${name}: banner lines up with the page`, b[0] === 20 && b[1] === 20 && b[2] === 12 && b[3] >= 48 && b[4], b.join(' '))
+}
 process.on('uncaughtException', async (e) => {
   console.log('SCRIPT ERROR', e.message)
   try { console.log('PAGE TEXT:\n' + (await cdp.text())) } catch {}
@@ -149,6 +157,7 @@ check('page title shows the puzzle number', (await cdp.text()).includes('No. ' +
 check('running head and difficulty squares', await cdp.eval(`document.querySelector('.running-head .back').textContent.trim() === 'Contents' && document.querySelectorAll('.page-title .squares .on').length === 1`))
 check('tool buttons carry an icon', (await cdp.eval(`document.querySelectorAll('.toolrow .tool svg').length`)) === 3)
 await checkFit('sudoku')
+await checkFitWithBanner('sudoku')
 check('sudoku renders givens', (await cdp.eval(`document.querySelectorAll('.sudoku .cell.given').length`)) > 20)
 check('digit row disabled without selection', await cdp.eval(`document.querySelector('.sudoku .digit-row button').disabled`))
 const empties = sg.puzzle.givens.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0)
@@ -417,6 +426,7 @@ for (const [name, size, sel] of [['Binairo', '12×12', '.binairo'], ['Nonogram',
   await cdp.click(`section[aria-label="${name}"] button`, 'New puzzle')
   await cdp.waitFor(`document.querySelector('${sel} .cell')`, 20000)
   await checkFit(`${name.toLowerCase()} ${size}`)
+  await checkFitWithBanner(`${name.toLowerCase()} ${size}`)
   await cdp.eval(`localStorage.removeItem('riddles.v1.game.${name.toLowerCase()}')`)
 }
 check('zoom gestures disabled', (await cdp.eval(`getComputedStyle(document.documentElement).touchAction`)) === 'pan-x pan-y')

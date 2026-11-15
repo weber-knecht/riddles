@@ -57,6 +57,8 @@ input {
   -webkit-user-select: text;
 }
 #app {
+  /* Keeps the banner's top margin inside, so it does not add to the page height. */
+  display: flow-root;
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -137,15 +139,31 @@ input[type='text'] {
   font: 400 18px/1.25 var(--font-hand);
   color: var(--ink-pencil);
 }
+/* Update banner: an inverted print strip above the page, as wide as its text column. */
 .banner {
   display: flex;
-  gap: 1rem;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  margin: 0 16px 1rem;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
+  box-sizing: border-box;
+  width: min(100% - 40px, 40rem - 40px);
+  margin: calc(12px + env(safe-area-inset-top)) auto 0;
+  padding: 6px 6px 6px 14px;
+  font: 700 15px/1.25 var(--font-print);
+  color: var(--bg);
+  background: var(--fg);
+  border-radius: 2px;
+}
+.banner button {
+  flex: none;
+  padding: 0 16px;
+  font-size: 15px;
+  color: var(--bg);
+  border-color: var(--bg);
+}
+/* The banner already keeps clear of the status bar. */
+.banner + main {
+  padding-top: 12px;
 }
 
 /* Contents page */
