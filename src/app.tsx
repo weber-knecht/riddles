@@ -10,12 +10,13 @@ import type { Difficulty } from './core/types'
 type Screen = { kind: 'menu' } | { kind: 'solve'; puzzleId: string; mode: SolveMode }
 
 const store = defaultStore()
+store.pruneUnknown(plugins.map((p) => p.logic.id))
 
 function loadAllGames(): { games: Record<string, SavedGame | null>; discarded: boolean } {
   const games: Record<string, SavedGame | null> = {}
   let discarded = false
   for (const p of plugins) {
-    const r = store.loadGame(p.logic.id)
+    const r = store.loadGame(p.logic.id, p.logic.version)
     games[p.logic.id] = r.status === 'ok' ? r.value : null
     if (r.status === 'discarded') discarded = true
   }

@@ -1,3 +1,4 @@
+import { Component, type ComponentChildren } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { ToolRow } from './ToolRow'
 import { generatePuzzle } from '../core/workerClient'
@@ -22,6 +23,30 @@ export interface SolveProps {
   onNewSame(game: SavedGame): void
 }
 
+const SAVE_FAILED = 'Progress could not be saved.'
+
+/** Last line of defence: a saved game the board cannot render never leaves a blank page. */
+class BoardBoundary extends Component<
+  { onDiscard(): void; children: ComponentChildren },
+  { failed: boolean }
+> {
+  state = { failed: false }
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+  render() {
+    if (!this.state.failed) return this.props.children
+    return (
+      <div class="center">
+        <p class="warn">This saved game could not be opened.</p>
+        <button class="danger" onClick={this.props.onDiscard}>
+          Discard this game
+        </button>
+      </div>
+    )
+  }
+}
+
 type Phase =
   | { kind: 'loading' }
   | { kind: 'error'; message: string }
@@ -42,7 +67,7 @@ export function Solve(props: SolveProps) {
     setCheckLine(null)
     setTool('pen')
     if (mode.kind === 'continue') {
-      const r = store.loadGame(logic.id)
+      const r = store.loadGame(logic.id, logic.version)
       if (r.status === 'ok') setPhase({ kind: 'playing', game: r.value })
       else setPhase({ kind: 'error', message: 'No saved game found.' })
       return
@@ -70,7 +95,7 @@ export function Solve(props: SolveProps) {
           startedAt: now,
           updatedAt: now,
         }
-        store.saveGame(game)
+        if (!store.saveGame(game)) setCheckLine(SAVE_FAILED)
         setPhase({ kind: 'playing', game })
       },
       (error: unknown) => {
@@ -85,9 +110,9 @@ export function Solve(props: SolveProps) {
 
   function update(game: SavedGame, patch: Partial<SavedGame>) {
     const next: SavedGame = { ...game, ...patch, updatedAt: new Date().toISOString() }
-    store.saveGame(next)
+    const saved = store.saveGame(next)
     setPhase({ kind: 'playing', game: next })
-    setCheckLine(null)
+    setCheckLine(saved ? null : SAVE_FAILED)
   }
 
   const header = (game: SavedGame | null) => (
@@ -168,12 +193,19 @@ export function Solve(props: SolveProps) {
     <main>
       {header(game)}
       <div class="board-frame">
-        <Board
-          puzzle={game.puzzle}
-          state={game.state}
-          tool={tool}
-          onChange={(next) => update(game, { state: next, undo: game.state })}
-        />
+        <BoardBoundary
+          onDiscard={() => {
+            store.clearGame(logic.id)
+            props.onExit()
+          }}
+        >
+          <Board
+            puzzle={game.puzzle}
+            state={game.state}
+            tool={tool}
+            onChange={(next) => update(game, { state: next, undo: game.state })}
+          />
+        </BoardBoundary>
       </div>
       <ToolRow
         tool={tool}

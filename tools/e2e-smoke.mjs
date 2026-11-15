@@ -335,5 +335,33 @@ await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', '{"schema":99}')`
 await cdp.navigate(BASE)
 check('corrupt record notice', (await cdp.text()).includes('could not be read'))
 
+// Data of a removed puzzle type is pruned silently
+await cdp.eval(`(() => {
+  localStorage.setItem('riddles.v1.game.counts', JSON.stringify({ schema: 1, puzzleId: 'counts' }))
+  const s = JSON.parse(localStorage.getItem('riddles.v1.settings'))
+  s.lastChoice.counts = { sizeId: '4', difficulty: 'easy' }
+  localStorage.setItem('riddles.v1.settings', JSON.stringify(s)) })()`)
+await cdp.navigate(BASE)
+check('removed puzzle data pruned', (await cdp.eval(`localStorage.getItem('riddles.v1.game.counts')`)) === null)
+check('removed puzzle choice pruned', !(await cdp.eval(`'counts' in JSON.parse(localStorage.getItem('riddles.v1.settings')).lastChoice`)))
+check('pruning shows no notice', !(await cdp.text()).includes('could not be read'))
+
+// A game from another generator version is discarded with the notice
+const stale = { schema: 1, puzzleId: 'sudoku', sizeId: '9', difficulty: 'easy', seed: 'STALE2', generatorVersion: 0, puzzle: {}, solution: [], state: {}, undo: null, startedAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' }
+await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', ${JSON.stringify(JSON.stringify(stale))})`)
+await cdp.navigate(BASE)
+t = await cdp.text()
+check('outdated game discarded with notice', t.includes('could not be read') && !t.includes('Continue ·'))
+
+// A current-version game the board cannot render offers a discard
+await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', ${JSON.stringify(JSON.stringify({ ...stale, generatorVersion: 1, puzzle: null }))})`)
+await cdp.navigate(BASE)
+await cdp.click('section[aria-label="Sudoku"] button', 'Continue')
+await sleep(300)
+check('unrenderable game offers discard', (await cdp.text()).includes('This saved game could not be opened.'))
+await cdp.click('button', 'Discard this game')
+await sleep(400)
+check('discard returns to a clean menu', !(await cdp.text()).includes('Continue ·') && (await cdp.eval(`localStorage.getItem('riddles.v1.game.sudoku')`)) === null)
+
 console.log(results.filter((r) => r[0] === 'FAIL').length + ' failures')
 await shutdown(process.exitCode ?? 0)

@@ -8,6 +8,7 @@ function stub(): KeyValueStore & { map: Map<string, string> } {
     getItem: (k) => map.get(k) ?? null,
     setItem: (k, v) => void map.set(k, v),
     removeItem: (k) => void map.delete(k),
+    keys: () => [...map.keys()],
   }
 }
 
@@ -68,9 +69,42 @@ describe('storage', () => {
       removeItem: () => {
         throw new Error('blocked')
       },
+      keys: () => {
+        throw new Error('blocked')
+      },
     })
     expect(store.loadGame('sudoku')).toEqual({ status: 'none' })
     expect(store.saveGame(game)).toBe(false)
     expect(store.loadSettings().lastChoice).toEqual({})
+    expect(() => store.pruneUnknown(['sudoku'])).not.toThrow()
+  })
+
+  it('discards a game written by another generator version', () => {
+    const kv = stub()
+    const store = createStore(kv)
+    store.saveGame(game)
+    expect(store.loadGame('sudoku', 1)).toEqual({ status: 'ok', value: game })
+    expect(store.loadGame('sudoku', 2)).toEqual({ status: 'discarded' })
+    expect(kv.map.has('riddles.v1.game.sudoku')).toBe(false)
+  })
+
+  it('prunes data of puzzle types that no longer exist', () => {
+    const kv = stub()
+    const store = createStore(kv)
+    store.saveGame(game)
+    store.saveGame({ ...game, puzzleId: 'counts' })
+    store.saveSettings({
+      schema: SCHEMA,
+      lastChoice: {
+        sudoku: { sizeId: '9', difficulty: 'hard' },
+        counts: { sizeId: '4', difficulty: 'easy' },
+      },
+    })
+    kv.setItem('unrelated', 'x')
+    store.pruneUnknown(['sudoku', 'binairo'])
+    expect(kv.map.has('riddles.v1.game.counts')).toBe(false)
+    expect(store.loadGame('sudoku')).toEqual({ status: 'ok', value: game })
+    expect(store.loadSettings().lastChoice).toEqual({ sudoku: { sizeId: '9', difficulty: 'hard' } })
+    expect(kv.map.get('unrelated')).toBe('x')
   })
 })
