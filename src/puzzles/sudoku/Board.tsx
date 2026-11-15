@@ -9,6 +9,7 @@ export function SudokuBoard({
   state,
   tool,
   onChange,
+  readOnly,
 }: BoardProps<SudokuPuzzle, SudokuState>) {
   const [selected, setSelected] = useState<number | null>(null)
   const { givens } = puzzle
@@ -23,7 +24,7 @@ export function SudokuBoard({
   }
 
   function tapCell(i: number) {
-    if (givens[i]) return
+    if (readOnly || givens[i]) return
     if (tool === 'erase') clearCell(i)
     else setSelected(i)
   }
@@ -43,6 +44,7 @@ export function SudokuBoard({
   }
 
   function onKeyDown(e: KeyboardEvent) {
+    if (readOnly) return
     if (e.key >= '1' && e.key <= '9') {
       enterDigit(Number(e.key))
       e.preventDefault()
@@ -77,7 +79,7 @@ export function SudokuBoard({
     const marks = state.marks[i] ?? 0
     const classes = ['cell']
     if (given) classes.push('given')
-    if (selected === i) classes.push('selected')
+    if (selected === i && !readOnly) classes.push('selected')
     if (c % 3 === 2 && c !== 8) classes.push('box-r')
     if (r % 3 === 2 && r !== 8) classes.push('box-b')
     cells.push(
@@ -108,21 +110,23 @@ export function SudokuBoard({
 
   const digitsDisabled = tool === 'erase' || selected === null
   return (
-    <div class="sudoku" tabIndex={0} onKeyDown={onKeyDown}>
-      <div class="grid" role="grid" aria-label="Sudoku grid">
+    <div class="sudoku" tabIndex={readOnly ? undefined : 0} onKeyDown={onKeyDown}>
+      <div class="grid" role="grid" aria-label="Sudoku grid" aria-readonly={readOnly}>
         {cells}
       </div>
-      <div
-        class={`digit-row${tool === 'pencil' ? ' pencil' : ''}`}
-        role="group"
-        aria-label="Digits"
-      >
-        {DIGITS.map((d) => (
-          <button key={d} type="button" disabled={digitsDisabled} onClick={() => enterDigit(d)}>
-            {d}
-          </button>
-        ))}
-      </div>
+      {!readOnly && (
+        <div
+          class={`digit-row${tool === 'pencil' ? ' pencil' : ''}`}
+          role="group"
+          aria-label="Digits"
+        >
+          {DIGITS.map((d) => (
+            <button key={d} type="button" disabled={digitsDisabled} onClick={() => enterDigit(d)}>
+              {d}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -254,24 +254,9 @@ export function Solve(props: SolveProps) {
     )
   }
 
-  if (phase.kind === 'solved') {
-    return (
-      <main class="page">
-        {page(phase.game)}
-        <div class="center">
-          <h2>Solved</h2>
-          <div class="row">
-            <button class="primary" onClick={() => props.onNewSame(phase.game)}>
-              New puzzle
-            </button>
-            <button onClick={props.onExit}>Back to menu</button>
-          </div>
-        </div>
-      </main>
-    )
-  }
-
+  // The solved page is the playing page with the board left as it was finished.
   const { game } = phase
+  const solved = phase.kind === 'solved'
   const Board = plugin.Board
 
   function onCheck() {
@@ -287,7 +272,7 @@ export function Solve(props: SolveProps) {
   return (
     <main class="page">
       {page(game)}
-      <div class="board-frame">
+      <div class={`board-frame${solved ? ' solved' : ''}`}>
         <BoardBoundary
           onDiscard={() => {
             store.clearGame(logic.id)
@@ -299,20 +284,33 @@ export function Solve(props: SolveProps) {
             state={game.state}
             tool={tool}
             onChange={(next) => update(game, { state: next, undo: game.state })}
+            readOnly={solved}
           />
         </BoardBoundary>
+        {solved && <h2 class="stamp">Solved</h2>}
       </div>
-      <ToolRow
-        tool={tool}
-        supportsPencil={logic.supportsPencil}
-        pencilLabel={logic.pencilLabel}
-        pencilIcon={logic.pencilIcon}
-        canUndo={game.undo !== null}
-        onTool={setTool}
-        onUndo={() => game.undo !== null && update(game, { state: game.undo, undo: null })}
-        onCheck={onCheck}
-      />
-      <CheckLineView line={checkLine} />
+      {solved ? (
+        <div class="pair solved-actions">
+          <button class="primary" onClick={() => props.onNewSame(game)}>
+            Next puzzle
+          </button>
+          <button onClick={props.onExit}>Contents</button>
+        </div>
+      ) : (
+        <>
+          <ToolRow
+            tool={tool}
+            supportsPencil={logic.supportsPencil}
+            pencilLabel={logic.pencilLabel}
+            pencilIcon={logic.pencilIcon}
+            canUndo={game.undo !== null}
+            onTool={setTool}
+            onUndo={() => game.undo !== null && update(game, { state: game.undo, undo: null })}
+            onCheck={onCheck}
+          />
+          <CheckLineView line={checkLine} />
+        </>
+      )}
     </main>
   )
 }

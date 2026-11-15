@@ -394,6 +394,7 @@ input[type='text'] {
   background: var(--fg);
 }
 .board-frame {
+  position: relative;
   width: min(100vw - 40px, 60vh);
   margin: 0 auto;
   touch-action: manipulation;
@@ -479,12 +480,30 @@ input[type='text'] {
   font-size: 13px;
   color: var(--muted);
 }
-.center {
-  text-align: center;
-  padding: 2rem 0;
-  display: grid;
-  gap: 1rem;
-  justify-items: center;
+/* The book answers back: a rubber stamp over the lower right of the finished board. */
+.stamp {
+  position: absolute;
+  right: 6px;
+  bottom: 28px;
+  padding: 4px 14px 2px;
+  border: 5px double var(--warn);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--warn);
+  font: 900 44px/1.1 var(--font-print);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: rotate(-9deg);
+  pointer-events: none;
+}
+.solved-actions {
+  margin-top: 6px;
+}
+.solved-actions button {
+  min-height: 58px;
+}
+.solved-actions .primary {
+  font-size: 18px;
 }
 
 /* Benchmark page */

@@ -240,9 +240,23 @@ for (const i of empties.slice(2)) {
 }
 await cdp.click('button', 'Check')
 t = await cdp.text()
-check('solved screen', t.includes('Solved') && t.includes('New puzzle'))
+// The stamp is printed in capitals; innerText reports it that way.
+check('solved page is stamped', t.includes('SOLVED') && t.includes('Next puzzle') && (await cdp.eval(`document.querySelector('.board-frame .stamp')?.textContent`)) === 'Solved')
 check('saved game cleared', (await cdp.eval(`localStorage.getItem('riddles.v1.game.sudoku')`)) === null)
-await cdp.click('button', 'Back to menu')
+const boardText = () => cdp.eval(`[...document.querySelectorAll('.sudoku .cell')].map(c => c.textContent.trim()).join('')`)
+const finished = await boardText()
+check('solved page keeps the finished board', finished === sg.solution.join(''), finished.length)
+check('solved page has no digit row and no tools', await cdp.eval(`!document.querySelector('.digit-row') && !document.querySelector('.toolrow') && !document.querySelector('.check-line')`))
+check('solved page marks no cell', await cdp.eval(`!document.querySelector('.sudoku .cell.selected')`))
+await clickCell(empties[0])
+await cdp.eval(`document.querySelector('.sudoku').dispatchEvent(new KeyboardEvent('keydown', { key: '${sg.solution[empties[0]] % 9 + 1}', bubbles: true }))`)
+await sleep(100)
+check('solved board ignores taps and keys', (await boardText()) === finished && (await cdp.eval(`!document.querySelector('.sudoku .cell.selected')`)))
+const stampBox = await cdp.eval(`(() => { const s = document.querySelector('.stamp').getBoundingClientRect(), g = document.querySelector('.sudoku .grid').getBoundingClientRect(); return [s.left >= 0, s.right <= innerWidth, s.top > g.top + g.height / 2, s.bottom <= g.bottom + 8, document.documentElement.scrollWidth <= innerWidth] })()`)
+check('stamp sits on the lower half of the board, inside the page', stampBox.every(Boolean), stampBox.join(' '))
+check('solved buttons are tall enough', await cdp.eval(`[...document.querySelectorAll('.solved-actions button')].every(b => b.getBoundingClientRect().height >= 48)`))
+await checkFit('sudoku solved page')
+await cdp.click('.solved-actions button', 'Contents')
 await sleep(300)
 check('menu has no continue after solve', !(await cdp.text()).includes('Continue at the bookmark'))
 
@@ -315,8 +329,11 @@ for (const i of bEmpties) {
   for (let k = 0; k < taps; k++) await bCell(i)
 }
 await cdp.click('button', 'Check')
-check('binairo solved screen', (await cdp.text()).includes('Solved'))
-await cdp.click('button', 'Back to menu')
+check('binairo solved page keeps the board under the stamp', await cdp.eval(`!!document.querySelector('.board-frame .stamp') && document.querySelectorAll('.binairo .cell').length === ${bg.puzzle.n * bg.puzzle.n}`))
+await bCell(b0); await sleep(50)
+check('binairo solved board ignores taps', (await bText(b0)) === String(bg.solution[b0]))
+await checkFit('binairo solved page')
+await cdp.click('.solved-actions button', 'Contents')
 await sleep(300)
 
 
@@ -374,9 +391,19 @@ check('nonogram undo reverts whole stroke', await cdp.eval(`[0,1,2,3,4].every(i 
 // solve: fill every picture cell via taps (crosses stay, ignored)
 for (const i of nFilled) await nCell(i)
 await cdp.click('button', 'Check')
-check('nonogram solved screen', (await cdp.text()).includes('Solved'))
-await cdp.click('button', 'Back to menu')
+check('nonogram solved page keeps the board under the stamp', await cdp.eval(`!!document.querySelector('.board-frame .stamp') && document.querySelectorAll('.nonogram .cell.filled').length === ${nFilled.length}`))
+await nCell(nFilled[0]); await sleep(50)
+check('nonogram solved board ignores taps', await cdp.eval(`document.querySelectorAll('.nonogram .cell.filled').length === ${nFilled.length}`))
+await checkFit('nonogram solved page')
+// Next puzzle: same type, size and level, a fresh page
+await cdp.click('.solved-actions button', 'Next puzzle')
+await cdp.waitFor(`localStorage.getItem('riddles.v1.game.nonogram') && document.querySelector('.nonogram .cell')`, 20000)
+const ng2 = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.nonogram'))`)
+check('next puzzle keeps size and level with a new number', ng2.seed !== ng.seed && ng2.sizeId === ng.sizeId && ng2.difficulty === ng.difficulty, ng2.seed)
+check('next puzzle is a fresh page', await cdp.eval(`!document.querySelector('.stamp') && !!document.querySelector('.toolrow') && !document.querySelector('.nonogram .cell.filled') && document.querySelector('.tool[aria-pressed="true"]') === null`))
+await cdp.click('.running-head .back')
 await sleep(300)
+await cdp.eval(`localStorage.removeItem('riddles.v1.game.nonogram')`)
 
 // Corrupt record -> notice
 await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', '{"schema":99}')`)

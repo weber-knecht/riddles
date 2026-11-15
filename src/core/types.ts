@@ -47,6 +47,8 @@ export interface BoardProps<P = unknown, St = unknown> {
   state: St
   tool: Tool
   onChange(next: St): void
+  /** A finished page: the board shows the state, takes no input and marks no cell. */
+  readOnly?: boolean
 }
 
 export interface PuzzlePlugin<P = unknown, S = unknown, St = unknown> {

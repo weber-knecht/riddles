@@ -17,6 +17,7 @@ export function NonogramBoard({
   state,
   tool,
   onChange,
+  readOnly,
 }: BoardProps<NonogramPuzzle, NonogramState>) {
   const { n, rows, cols } = puzzle
   const gridRef = useRef<HTMLDivElement>(null)
@@ -75,6 +76,7 @@ export function NonogramBoard({
   }
 
   function onPointerDown(e: PointerEvent) {
+    if (readOnly) return
     if (e.button !== 0 && e.pointerType === 'mouse') return
     const start = cellAt(e.clientX, e.clientY)
     if (start === null) return
@@ -132,6 +134,7 @@ export function NonogramBoard({
   }
 
   function onKeyDown(e: KeyboardEvent) {
+    if (readOnly) return
     setKeys(true)
     if (focus === null && e.key.startsWith('Arrow')) {
       setFocus(0)
@@ -166,7 +169,7 @@ export function NonogramBoard({
     const classes = ['cell']
     if (v === 1) classes.push('filled')
     if (v === 2) classes.push('cross')
-    if (keys && focus === i) classes.push('focus')
+    if (keys && focus === i && !readOnly) classes.push('focus')
     if (c % 5 === 4 && c !== n - 1) classes.push('thick-r')
     if (r % 5 === 4 && r !== n - 1) classes.push('thick-b')
     cells.push(
@@ -187,7 +190,11 @@ export function NonogramBoard({
 
   const big = n > 10
   return (
-    <div class={`nonogram${big ? ' big' : ''}`} tabIndex={0} onKeyDown={onKeyDown}>
+    <div
+      class={`nonogram${big ? ' big' : ''}`}
+      tabIndex={readOnly ? undefined : 0}
+      onKeyDown={onKeyDown}
+    >
       <div class="corner" />
       <div class="col-clues" style={`grid-template-columns: repeat(${n}, 1fr)`}>
         {cols.map((clue, c) => (
@@ -212,6 +219,7 @@ export function NonogramBoard({
         class="grid"
         role="grid"
         aria-label="Nonogram grid"
+        aria-readonly={readOnly}
         style={`grid-template: repeat(${n}, minmax(0, 1fr)) / repeat(${n}, minmax(0, 1fr))`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

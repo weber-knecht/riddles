@@ -7,6 +7,7 @@ export function BinairoBoard({
   state,
   tool,
   onChange,
+  readOnly,
 }: BoardProps<BinairoPuzzle, BinairoState>) {
   const { n, givens } = puzzle
   const [focus, setFocus] = useState<number | null>(null)
@@ -22,7 +23,7 @@ export function BinairoBoard({
   }
 
   function tapCell(i: number) {
-    if ((givens[i] ?? -1) !== -1) return
+    if (readOnly || (givens[i] ?? -1) !== -1) return
     setFocus(i)
     setKeys(false)
     const current = state.cells[i] ?? -1
@@ -31,6 +32,7 @@ export function BinairoBoard({
   }
 
   function onKeyDown(e: KeyboardEvent) {
+    if (readOnly) return
     setKeys(true)
     if (e.key === '0' || e.key === '1') {
       if (focus !== null) setCell(focus, Number(e.key))
@@ -63,7 +65,7 @@ export function BinairoBoard({
     const value = given !== -1 ? given : (state.cells[i] ?? -1)
     const classes = ['cell']
     if (given !== -1) classes.push('given')
-    if (keys && focus === i) classes.push('focus')
+    if (keys && focus === i && !readOnly) classes.push('focus')
     const r = Math.floor(i / n) + 1
     const c = (i % n) + 1
     cells.push(
@@ -86,8 +88,13 @@ export function BinairoBoard({
   }
 
   return (
-    <div class="binairo" style={`--n: ${n}`} tabIndex={0} onKeyDown={onKeyDown}>
-      <div class="grid" role="grid" aria-label="Binairo grid">
+    <div
+      class="binairo"
+      style={`--n: ${n}`}
+      tabIndex={readOnly ? undefined : 0}
+      onKeyDown={onKeyDown}
+    >
+      <div class="grid" role="grid" aria-label="Binairo grid" aria-readonly={readOnly}>
         {cells}
       </div>
     </div>
