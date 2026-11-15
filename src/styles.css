@@ -206,42 +206,6 @@ footer {
   justify-items: center;
 }
 
-/* Counts board */
-.counts {
-  display: grid;
-  width: 100%;
-  aspect-ratio: 1;
-}
-.counts .clue {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink-given);
-  font-weight: 600;
-  font-size: clamp(1rem, 4.5vw, 1.6rem);
-}
-.counts .cell {
-  position: relative;
-  border: 1px solid var(--grid-line);
-  background: var(--surface);
-  padding: 0;
-  min-width: 0;
-  min-height: 0;
-  border-radius: 0;
-}
-.counts .cell.filled {
-  background: var(--fill);
-}
-.counts .cell .dot {
-  position: absolute;
-  width: 22%;
-  height: 22%;
-  border-radius: 50%;
-  background: var(--ink-pencil);
-  left: 39%;
-  top: 39%;
-}
-
 /* Sudoku board */
 .sudoku {
   outline: none;

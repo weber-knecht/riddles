@@ -106,105 +106,27 @@ await cdp.eval('localStorage.clear()')
 await cdp.navigate(BASE)
 
 let t = await cdp.text()
-check('menu renders', t.includes('Riddles') && t.includes('New · 4×4 · Easy'), t.split('\n')[0])
+check('menu renders', t.includes('Riddles') && t.includes('New · 9×9 · Easy'), t.split('\n')[0])
+check('menu has no placeholder puzzle', !t.includes('Counts'))
 check('no continue initially', !t.includes('Continue ·'))
 
+// ---- Shell, exercised through Sudoku ----
+const SUDOKU = 'section[aria-label="Sudoku"]'
+const undoDisabled = () => cdp.eval(`[...document.querySelectorAll('button')].find(b => b.textContent.trim()==='Undo').disabled`)
+
 // Difficulty choice is remembered
-await cdp.click('section[aria-label="Counts"] .segmented button', 'Hard')
-check('difficulty selectable', (await cdp.text()).includes('New · 4×4 · Hard'))
+await cdp.click(`${SUDOKU} .segmented button`, 'Hard')
+check('difficulty selectable', (await cdp.text()).includes('New · 9×9 · Hard'))
 await cdp.navigate(BASE)
-check('difficulty remembered after reload', (await cdp.text()).includes('New · 4×4 · Hard'))
-await cdp.click('section[aria-label="Counts"] .segmented button', 'Easy')
+check('difficulty remembered after reload', (await cdp.text()).includes('New · 9×9 · Hard'))
+await cdp.click(`${SUDOKU} .segmented button`, 'Easy')
 
 // New game via worker
-await cdp.click('section[aria-label="Counts"] button', 'New ·')
-await cdp.waitFor(`document.querySelector('.counts .cell')`)
-const game1 = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.counts'))`)
-check('game saved with solution', Array.isArray(game1.solution) && game1.solution.length === 16, 'seed ' + game1.seed)
-check('header shows seed', (await cdp.text()).includes('Seed ' + game1.seed))
-
-// Wrong cell -> mistakes; undo -> ok
-const wrong = game1.solution.indexOf(0)
-await cdp.eval(`document.querySelectorAll('.counts .cell')[${wrong}].click()`)
-await cdp.click('button', 'Check')
-check('check reports mistakes', (await cdp.text()).includes('Contains mistakes.'))
-await cdp.click('button', 'Undo')
-await cdp.click('button', 'Check')
-check('undo then check ok', (await cdp.text()).includes('Correct so far.'))
-check('undo disabled after use', await cdp.eval(`[...document.querySelectorAll('button')].find(b => b.textContent.trim()==='Undo').disabled`))
-
-// Pencil mark then erase
-await cdp.click('button', 'Pencil')
-await cdp.eval(`document.querySelectorAll('.counts .cell')[0].click()`)
-check('pencil dot drawn', await cdp.eval(`!!document.querySelector('.counts .cell .dot')`))
-await cdp.click('button', 'Eraser')
-await cdp.eval(`document.querySelectorAll('.counts .cell')[0].click()`)
-check('eraser removes dot', await cdp.eval(`!document.querySelector('.counts .cell .dot')`))
-await cdp.click('button', 'Eraser') // back to pen
-
-// Fill two correct cells, reload, continue, state restored
-const correct = game1.solution.map((v, i) => (v ? i : -1)).filter((i) => i >= 0)
-await cdp.eval(`document.querySelectorAll('.counts .cell')[${correct[0]}].click()`)
-await cdp.eval(`document.querySelectorAll('.counts .cell')[${correct[1]}].click()`)
-await cdp.navigate(BASE)
-t = await cdp.text()
-check('menu shows continue', t.includes('Continue · 4×4 · Easy · ' + game1.seed))
-await cdp.click('section[aria-label="Counts"] button', 'Continue')
-await cdp.waitFor(`document.querySelector('.counts .cell')`)
-check('resume restores two filled cells', (await cdp.eval(`document.querySelectorAll('.counts .cell.filled').length`)) === 2)
-check('resume restores undo snapshot', !(await cdp.eval(`[...document.querySelectorAll('button')].find(b => b.textContent.trim()==='Undo').disabled`)))
-
-// Back gesture returns to menu
-await cdp.eval('history.back()')
-await sleep(300)
-check('history back returns to menu', (await cdp.text()).includes('Continue ·'))
-
-// Discard confirm
-await cdp.click('section[aria-label="Counts"] button', 'New ·')
-check('inline discard prompt', (await cdp.text()).includes('Discard the current game?'))
-await cdp.click('section[aria-label="Counts"] button', 'Keep')
-check('keep keeps game', (await cdp.text()).includes('Continue ·'))
-
-// Solve it
-await cdp.click('section[aria-label="Counts"] button', 'Continue')
-await cdp.waitFor(`document.querySelector('.counts .cell')`)
-for (const i of correct.slice(2)) await cdp.eval(`document.querySelectorAll('.counts .cell')[${i}].click()`)
-await cdp.click('button', 'Check')
-t = await cdp.text()
-check('solved screen', t.includes('Solved') && t.includes('New puzzle'))
-check('saved game cleared', (await cdp.eval(`localStorage.getItem('riddles.v1.game.counts')`)) === null)
-await cdp.click('button', 'Back to menu')
-await sleep(300)
-check('menu has no continue after solve', !(await cdp.text()).includes('Continue ·'))
-
-// Seed reproducibility
-async function newWithSeed(seed) {
-  await cdp.eval(`(() => { const i = document.querySelector('input[type=text]'); i.value = ${JSON.stringify(seed)}; i.dispatchEvent(new Event('input', {bubbles:true})) })()`)
-  await sleep(200)
-  await cdp.click('section[aria-label="Counts"] button', 'New ·')
-  if (await cdp.eval(`[...document.querySelectorAll('section[aria-label="Counts"] button')].some(b => b.textContent.trim() === 'Discard')`)) {
-    await cdp.click('section[aria-label="Counts"] button', 'Discard')
-  }
-  await cdp.waitFor(`document.querySelector('.counts .cell')`)
-  const g = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.counts'))`)
-  await cdp.eval('history.back()')
-  await sleep(400)
-  return g
-}
-const a = await newWithSeed('abc234')
-const b = await newWithSeed('abc234')
-check('seed normalised to uppercase', a.seed === 'ABC234')
-check('same seed gives same puzzle', JSON.stringify(a.puzzle) === JSON.stringify(b.puzzle) && JSON.stringify(a.solution) === JSON.stringify(b.solution))
-check('seed field cleared after use', (await cdp.eval(`document.querySelector('input[type=text]').value`)) === '')
-check('menu history state normalised', (await cdp.eval(`history.state?.screen`)) === 'menu')
-
-
-// ---- Sudoku ----
-await cdp.navigate(BASE)
-await cdp.click('section[aria-label="Sudoku"] button', 'New ·')
+await cdp.click(`${SUDOKU} button`, 'New ·')
 await cdp.waitFor(`document.querySelector('.sudoku .cell')`, 20000)
 const sg = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.sudoku'))`)
 check('sudoku saved with 81 givens and solution', sg.puzzle.givens.length === 81 && sg.solution.length === 81, 'seed ' + sg.seed)
+check('header shows seed', (await cdp.text()).includes('Seed ' + sg.seed))
 check('sudoku renders givens', (await cdp.eval(`document.querySelectorAll('.sudoku .cell.given').length`)) > 20)
 check('digit row disabled without selection', await cdp.eval(`document.querySelector('.sudoku .digit-row button').disabled`))
 const empties = sg.puzzle.givens.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0)
@@ -216,13 +138,18 @@ await clickCell(sg.puzzle.givens.findIndex((v) => v))
 check('given cell cannot be selected', !(await cdp.eval(`!!document.querySelector('.sudoku .cell.selected')`)))
 await clickCell(first)
 check('cell selected', await cdp.eval(`document.querySelectorAll('.sudoku .cell')[${first}].classList.contains('selected')`))
+
+// Wrong digit -> mistakes; undo -> ok
 await clickDigit(sg.solution[first] === 1 ? 2 : 1)
 await cdp.click('button', 'Check')
-check('sudoku wrong digit reports mistakes', (await cdp.text()).includes('Contains mistakes.'))
+check('check reports mistakes', (await cdp.text()).includes('Contains mistakes.'))
 await cdp.click('button', 'Undo')
-check('sudoku undo clears digit', (await cellText(first)) === '')
+check('undo clears digit', (await cellText(first)) === '')
 await cdp.click('button', 'Check')
-check('sudoku after undo correct so far', (await cdp.text()).includes('Correct so far.'))
+check('undo then check ok', (await cdp.text()).includes('Correct so far.'))
+check('undo disabled after use', await undoDisabled())
+
+// Pencil marks, keyboard, eraser
 await cdp.click('button', 'Pencil')
 await clickCell(first)
 await clickDigit(3)
@@ -241,16 +168,71 @@ await clickCell(first)
 await sleep(100)
 check('eraser clears a cell by tap', (await cellText(first)) === '')
 check('digit row disabled in erase mode', await cdp.eval(`document.querySelector('.sudoku .digit-row button').disabled`))
-await cdp.click('button', 'Eraser')
-for (const i of empties) {
+await cdp.click('button', 'Eraser') // back to pen
+
+// Fill two correct cells, reload, continue, state restored
+for (const i of empties.slice(0, 2)) {
+  await clickCell(i)
+  await clickDigit(sg.solution[i])
+}
+await cdp.navigate(BASE)
+t = await cdp.text()
+check('menu shows continue', t.includes('Continue · 9×9 · Easy · ' + sg.seed))
+await cdp.click(`${SUDOKU} button`, 'Continue')
+await cdp.waitFor(`document.querySelector('.sudoku .cell')`)
+check(
+  'resume restores two entered digits',
+  (await cellText(empties[0])) === String(sg.solution[empties[0]]) && (await cellText(empties[1])) === String(sg.solution[empties[1]]),
+)
+check('resume restores undo snapshot', !(await undoDisabled()))
+
+// Back gesture returns to menu
+await cdp.eval('history.back()')
+await sleep(300)
+check('history back returns to menu', (await cdp.text()).includes('Continue ·'))
+
+// Discard confirm
+await cdp.click(`${SUDOKU} button`, 'New ·')
+check('inline discard prompt', (await cdp.text()).includes('Discard the current game?'))
+await cdp.click(`${SUDOKU} button`, 'Keep')
+check('keep keeps game', (await cdp.text()).includes('Continue ·'))
+
+// Solve it
+await cdp.click(`${SUDOKU} button`, 'Continue')
+await cdp.waitFor(`document.querySelector('.sudoku .cell')`)
+for (const i of empties.slice(2)) {
   await clickCell(i)
   await clickDigit(sg.solution[i])
 }
 await cdp.click('button', 'Check')
-check('sudoku solved screen', (await cdp.text()).includes('Solved'))
-check('sudoku saved game cleared', (await cdp.eval(`localStorage.getItem('riddles.v1.game.sudoku')`)) === null)
+t = await cdp.text()
+check('solved screen', t.includes('Solved') && t.includes('New puzzle'))
+check('saved game cleared', (await cdp.eval(`localStorage.getItem('riddles.v1.game.sudoku')`)) === null)
 await cdp.click('button', 'Back to menu')
 await sleep(300)
+check('menu has no continue after solve', !(await cdp.text()).includes('Continue ·'))
+
+// Seed reproducibility
+async function newWithSeed(seed) {
+  await cdp.eval(`(() => { const i = document.querySelector('input[type=text]'); i.value = ${JSON.stringify(seed)}; i.dispatchEvent(new Event('input', {bubbles:true})) })()`)
+  await sleep(200)
+  await cdp.click(`${SUDOKU} button`, 'New ·')
+  if (await cdp.eval(`[...document.querySelectorAll('${SUDOKU} button')].some(b => b.textContent.trim() === 'Discard')`)) {
+    await cdp.click(`${SUDOKU} button`, 'Discard')
+  }
+  await cdp.waitFor(`document.querySelector('.sudoku .cell')`, 20000)
+  const g = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.sudoku'))`)
+  await cdp.eval('history.back()')
+  await sleep(400)
+  return g
+}
+const a = await newWithSeed('abc234')
+const b = await newWithSeed('abc234')
+check('seed normalised to uppercase', a.seed === 'ABC234')
+check('same seed gives same puzzle', JSON.stringify(a.puzzle) === JSON.stringify(b.puzzle) && JSON.stringify(a.solution) === JSON.stringify(b.solution))
+check('seed field cleared after use', (await cdp.eval(`document.querySelector('input[type=text]').value`)) === '')
+check('menu history state normalised', (await cdp.eval(`history.state?.screen`)) === 'menu')
+await cdp.eval(`localStorage.removeItem('riddles.v1.game.sudoku')`)
 
 
 // ---- Binairo ----
@@ -349,7 +331,7 @@ await cdp.click('button', 'Back to menu')
 await sleep(300)
 
 // Corrupt record -> notice
-await cdp.eval(`localStorage.setItem('riddles.v1.game.counts', '{"schema":99}')`)
+await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', '{"schema":99}')`)
 await cdp.navigate(BASE)
 check('corrupt record notice', (await cdp.text()).includes('could not be read'))
 

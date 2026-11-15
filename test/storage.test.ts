@@ -13,7 +13,7 @@ function stub(): KeyValueStore & { map: Map<string, string> } {
 
 const game: SavedGame = {
   schema: SCHEMA,
-  puzzleId: 'counts',
+  puzzleId: 'sudoku',
   sizeId: '4',
   difficulty: 'easy',
   seed: 'ABCDEF',
@@ -30,21 +30,21 @@ describe('storage', () => {
   it('round-trips a game and clears it', () => {
     const kv = stub()
     const store = createStore(kv)
-    expect(store.loadGame('counts')).toEqual({ status: 'none' })
+    expect(store.loadGame('sudoku')).toEqual({ status: 'none' })
     expect(store.saveGame(game)).toBe(true)
-    expect(store.loadGame('counts')).toEqual({ status: 'ok', value: game })
-    store.clearGame('counts')
-    expect(store.loadGame('counts')).toEqual({ status: 'none' })
+    expect(store.loadGame('sudoku')).toEqual({ status: 'ok', value: game })
+    store.clearGame('sudoku')
+    expect(store.loadGame('sudoku')).toEqual({ status: 'none' })
   })
 
   it('discards records with an unknown schema or malformed JSON', () => {
     const kv = stub()
     const store = createStore(kv)
-    kv.setItem('riddles.v1.game.counts', JSON.stringify({ ...game, schema: 99 }))
-    expect(store.loadGame('counts')).toEqual({ status: 'discarded' })
-    expect(kv.map.has('riddles.v1.game.counts')).toBe(false)
-    kv.setItem('riddles.v1.game.counts', '{not json')
-    expect(store.loadGame('counts')).toEqual({ status: 'discarded' })
+    kv.setItem('riddles.v1.game.sudoku', JSON.stringify({ ...game, schema: 99 }))
+    expect(store.loadGame('sudoku')).toEqual({ status: 'discarded' })
+    expect(kv.map.has('riddles.v1.game.sudoku')).toBe(false)
+    kv.setItem('riddles.v1.game.sudoku', '{not json')
+    expect(store.loadGame('sudoku')).toEqual({ status: 'discarded' })
   })
 
   it('falls back to default settings and remembers choices', () => {
@@ -52,9 +52,9 @@ describe('storage', () => {
     expect(store.loadSettings()).toEqual({ schema: SCHEMA, lastChoice: {} })
     store.saveSettings({
       schema: SCHEMA,
-      lastChoice: { counts: { sizeId: '4', difficulty: 'hard' } },
+      lastChoice: { sudoku: { sizeId: '4', difficulty: 'hard' } },
     })
-    expect(store.loadSettings().lastChoice.counts).toEqual({ sizeId: '4', difficulty: 'hard' })
+    expect(store.loadSettings().lastChoice.sudoku).toEqual({ sizeId: '4', difficulty: 'hard' })
   })
 
   it('survives a throwing backend', () => {
@@ -69,7 +69,7 @@ describe('storage', () => {
         throw new Error('blocked')
       },
     })
-    expect(store.loadGame('counts')).toEqual({ status: 'none' })
+    expect(store.loadGame('sudoku')).toEqual({ status: 'none' })
     expect(store.saveGame(game)).toBe(false)
     expect(store.loadSettings().lastChoice).toEqual({})
   })
