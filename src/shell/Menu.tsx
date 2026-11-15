@@ -15,15 +15,30 @@ export interface MenuProps {
   onNew(puzzleId: string, sizeId: string, difficulty: Difficulty, seed: string | null): void
 }
 
+// "2026-11-15T16:20:31.000Z" printed as "2026-11-15 16:20 UTC".
+const PRINTED = `${__BUILD_TIME__.slice(0, 10)} ${__BUILD_TIME__.slice(11, 16)} UTC`
+
 export function Menu(props: MenuProps) {
   return (
-    <main>
-      <h1>Riddles</h1>
+    <main class="contents">
+      <header class="masthead">
+        <div class="masthead-line label">
+          <span>Puzzle book</span>
+          <span>Vol. {__APP_VERSION__}</span>
+        </div>
+        <div class="double-rule" />
+        <h1>Riddles</h1>
+        <div class="double-rule mirrored" />
+      </header>
       {props.notice && (
-        <p class="notice muted" role="status">
+        <p class="notice" role="status">
           {props.notice}
         </p>
       )}
+      <div class="contents-line">
+        <h2 class="label">Contents</h2>
+        <span class="hand">circle your choice</span>
+      </div>
       {props.plugins.map((plugin) => {
         const id = plugin.logic.id
         const first = plugin.logic.sizes[0]
@@ -46,21 +61,28 @@ export function Menu(props: MenuProps) {
           />
         )
       })}
-      <label class="seed-field">
-        <span class="muted">Seed for the next new puzzle (optional)</span>
-        <input
-          type="text"
-          inputMode="text"
-          autocapitalize="characters"
-          autocomplete="off"
-          spellcheck={false}
-          maxLength={12}
-          value={props.seedInput}
-          onInput={(e) => props.onSeedInput((e.currentTarget as HTMLInputElement).value)}
-        />
-      </label>
-      <footer class="muted">
-        v{__APP_VERSION__} · Build {__BUILD_TIME__}
+      <div class="number-field">
+        <label for="seed">
+          Looking for one particular puzzle? Write its number here (optional).
+        </label>
+        <div class="number-line">
+          <span>No.</span>
+          <input
+            id="seed"
+            type="text"
+            inputMode="text"
+            autocapitalize="characters"
+            autocomplete="off"
+            spellcheck={false}
+            maxLength={12}
+            value={props.seedInput}
+            onInput={(e) => props.onSeedInput((e.currentTarget as HTMLInputElement).value)}
+          />
+        </div>
+      </div>
+      <footer>
+        <span>Vol. {__APP_VERSION__}</span>
+        <span>Printed {PRINTED}</span>
       </footer>
     </main>
   )

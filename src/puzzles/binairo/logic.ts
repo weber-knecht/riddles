@@ -86,6 +86,7 @@ function check(puzzle: BinairoPuzzle, solution: BinairoSolution, state: BinairoS
 export const binairoLogic: PuzzleLogic<BinairoPuzzle, BinairoSolution, BinairoState> = {
   id: 'binairo',
   name: 'Binairo',
+  tagline: '0 and 1',
   version: 1,
   sizes: [
     { id: '10', label: '10×10' },

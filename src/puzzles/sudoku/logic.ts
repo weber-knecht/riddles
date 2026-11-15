@@ -88,6 +88,7 @@ function check(puzzle: SudokuPuzzle, solution: SudokuSolution, state: SudokuStat
 export const sudokuLogic: PuzzleLogic<SudokuPuzzle, SudokuSolution, SudokuState> = {
   id: 'sudoku',
   name: 'Sudoku',
+  tagline: '9×9',
   version: 1,
   sizes: [{ id: '9', label: '9×9' }],
   supportsPencil: true,

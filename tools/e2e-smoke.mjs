@@ -113,10 +113,12 @@ await cdp.eval('localStorage.clear()')
 await cdp.navigate(BASE)
 
 let t = await cdp.text()
-check('menu renders', t.includes('Riddles') && t.includes('New · 9×9 · Easy'), t.split('\n')[0])
+check('menu renders', t.includes('Riddles') && t.includes('New puzzle · Easy') && t.includes('New puzzle · 10×10 · Easy'), t.split('\n')[0])
 check('menu has no placeholder puzzle', !t.includes('Counts'))
-check('footer shows version and build time', /v\d+\.\d+\.\d+ · Build \d{4}-/.test(t), t.split('\n').pop())
-check('no continue initially', !t.includes('Continue ·'))
+check('footer shows volume and print time', /Vol\. \d+\.\d+\.\d+\s+Printed \d{4}-\d\d-\d\d \d\d:\d\d UTC$/.test(t.trim()), t.trim().split('\n').slice(-2).join(' | '))
+check('each entry has a tagline', ['9×9', '0 and 1', 'picture logic'].every((w) => t.includes(w)))
+check('one pen circle per choice row', await cdp.eval(`[...document.querySelectorAll('.choice')].length === 5 && [...document.querySelectorAll('.choice')].every((row) => row.querySelectorAll('svg').length === 1 && row.querySelector('[aria-pressed="true"] svg'))`))
+check('no continue initially', !t.includes('Continue at the bookmark'))
 
 // Fonts are self-hosted and precached
 const FACES = ['500 16px Besley', '700 16px Besley', '900 16px Besley', '400 16px Kalam', '700 16px Kalam', '500 16px "Libre Franklin"', '700 16px "Libre Franklin"']
@@ -132,14 +134,14 @@ const SUDOKU = 'section[aria-label="Sudoku"]'
 const undoDisabled = () => cdp.eval(`[...document.querySelectorAll('button')].find(b => b.textContent.trim()==='Undo').disabled`)
 
 // Difficulty choice is remembered
-await cdp.click(`${SUDOKU} .segmented button`, 'Hard')
-check('difficulty selectable', (await cdp.text()).includes('New · 9×9 · Hard'))
+await cdp.click(`${SUDOKU} .choice button`, 'Hard')
+check('difficulty selectable', (await cdp.text()).includes('New puzzle · Hard'))
 await cdp.navigate(BASE)
-check('difficulty remembered after reload', (await cdp.text()).includes('New · 9×9 · Hard'))
-await cdp.click(`${SUDOKU} .segmented button`, 'Easy')
+check('difficulty remembered after reload', (await cdp.text()).includes('New puzzle · Hard'))
+await cdp.click(`${SUDOKU} .choice button`, 'Easy')
 
 // New game via worker
-await cdp.click(`${SUDOKU} button`, 'New ·')
+await cdp.click(`${SUDOKU} button`, 'New puzzle')
 await cdp.waitFor(`document.querySelector('.sudoku .cell')`, 20000)
 const sg = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.sudoku'))`)
 check('sudoku saved with 81 givens and solution', sg.puzzle.givens.length === 81 && sg.solution.length === 81, 'seed ' + sg.seed)
@@ -198,7 +200,7 @@ for (const i of empties.slice(0, 2)) {
 }
 await cdp.navigate(BASE)
 t = await cdp.text()
-check('menu shows continue', t.includes('Continue · 9×9 · Easy · ' + sg.seed))
+check('menu shows continue', t.includes('Continue at the bookmark') && t.includes('No. ' + sg.seed + ' · Easy'))
 await cdp.click(`${SUDOKU} button`, 'Continue')
 await cdp.waitFor(`document.querySelector('.sudoku .cell')`)
 check(
@@ -210,13 +212,13 @@ check('resume restores undo snapshot', !(await undoDisabled()))
 // Back gesture returns to menu
 await cdp.eval('history.back()')
 await sleep(300)
-check('history back returns to menu', (await cdp.text()).includes('Continue ·'))
+check('history back returns to menu', (await cdp.text()).includes('Continue at the bookmark'))
 
 // Discard confirm
-await cdp.click(`${SUDOKU} button`, 'New ·')
-check('inline discard prompt', (await cdp.text()).includes('Discard the current game?'))
+await cdp.click(`${SUDOKU} button`, 'New puzzle')
+check('inline discard prompt', (await cdp.text()).includes('Tear out the page you started?'))
 await cdp.click(`${SUDOKU} button`, 'Keep')
-check('keep keeps game', (await cdp.text()).includes('Continue ·'))
+check('keep keeps game', (await cdp.text()).includes('Continue at the bookmark'))
 
 // Solve it
 await cdp.click(`${SUDOKU} button`, 'Continue')
@@ -231,13 +233,13 @@ check('solved screen', t.includes('Solved') && t.includes('New puzzle'))
 check('saved game cleared', (await cdp.eval(`localStorage.getItem('riddles.v1.game.sudoku')`)) === null)
 await cdp.click('button', 'Back to menu')
 await sleep(300)
-check('menu has no continue after solve', !(await cdp.text()).includes('Continue ·'))
+check('menu has no continue after solve', !(await cdp.text()).includes('Continue at the bookmark'))
 
 // Seed reproducibility
 async function newWithSeed(seed) {
   await cdp.eval(`(() => { const i = document.querySelector('input[type=text]'); i.value = ${JSON.stringify(seed)}; i.dispatchEvent(new Event('input', {bubbles:true})) })()`)
   await sleep(200)
-  await cdp.click(`${SUDOKU} button`, 'New ·')
+  await cdp.click(`${SUDOKU} button`, 'New puzzle')
   if (await cdp.eval(`[...document.querySelectorAll('${SUDOKU} button')].some(b => b.textContent.trim() === 'Discard')`)) {
     await cdp.click(`${SUDOKU} button`, 'Discard')
   }
@@ -261,7 +263,7 @@ await cdp.eval(`localStorage.removeItem('riddles.v1.game.sudoku')`)
 
 // ---- Binairo ----
 await cdp.navigate(BASE)
-await cdp.click('section[aria-label="Binairo"] button', 'New ·')
+await cdp.click('section[aria-label="Binairo"] button', 'New puzzle')
 await cdp.waitFor(`document.querySelector('.binairo .cell')`, 20000)
 const bg = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.binairo'))`)
 check('binairo saved 10x10 with solution', bg.puzzle.n === 10 && bg.solution.length === 100, 'seed ' + bg.seed)
@@ -303,7 +305,7 @@ await sleep(300)
 
 // ---- Nonogram ----
 await cdp.navigate(BASE)
-await cdp.click('section[aria-label="Nonogram"] button', 'New ·')
+await cdp.click('section[aria-label="Nonogram"] button', 'New puzzle')
 await cdp.waitFor(`document.querySelector('.nonogram .cell')`, 20000)
 const ng = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.nonogram'))`)
 check('nonogram saved 10x10 with clues and solution', ng.puzzle.n === 10 && ng.puzzle.rows.length === 10 && ng.solution.length === 100, 'seed ' + ng.seed)
@@ -359,13 +361,13 @@ await sleep(300)
 // Corrupt record -> notice
 await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', '{"schema":99}')`)
 await cdp.navigate(BASE)
-check('corrupt record notice', (await cdp.text()).includes('could not be read'))
+check('corrupt record notice', (await cdp.text()).includes('older edition was discarded'))
 
 // The larger sizes fit too
 for (const [name, size, sel] of [['Binairo', '12×12', '.binairo'], ['Nonogram', '15×15', '.nonogram']]) {
   await cdp.navigate(BASE)
-  await cdp.click(`section[aria-label="${name}"] .segmented button`, size)
-  await cdp.click(`section[aria-label="${name}"] button`, 'New ·')
+  await cdp.click(`section[aria-label="${name}"] .choice button`, size)
+  await cdp.click(`section[aria-label="${name}"] button`, 'New puzzle')
   await cdp.waitFor(`document.querySelector('${sel} .cell')`, 20000)
   await checkFit(`${name.toLowerCase()} ${size}`)
   await cdp.eval(`localStorage.removeItem('riddles.v1.game.${name.toLowerCase()}')`)
@@ -381,14 +383,14 @@ await cdp.eval(`(() => {
 await cdp.navigate(BASE)
 check('removed puzzle data pruned', (await cdp.eval(`localStorage.getItem('riddles.v1.game.counts')`)) === null)
 check('removed puzzle choice pruned', !(await cdp.eval(`'counts' in JSON.parse(localStorage.getItem('riddles.v1.settings')).lastChoice`)))
-check('pruning shows no notice', !(await cdp.text()).includes('could not be read'))
+check('pruning shows no notice', !(await cdp.text()).includes('older edition was discarded'))
 
 // A game from another generator version is discarded with the notice
 const stale = { schema: 1, puzzleId: 'sudoku', sizeId: '9', difficulty: 'easy', seed: 'STALE2', generatorVersion: 0, puzzle: {}, solution: [], state: {}, undo: null, startedAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' }
 await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', ${JSON.stringify(JSON.stringify(stale))})`)
 await cdp.navigate(BASE)
 t = await cdp.text()
-check('outdated game discarded with notice', t.includes('could not be read') && !t.includes('Continue ·'))
+check('outdated game discarded with notice', t.includes('older edition was discarded') && !t.includes('Continue at the bookmark'))
 
 // A current-version game the board cannot render offers a discard
 await cdp.eval(`localStorage.setItem('riddles.v1.game.sudoku', ${JSON.stringify(JSON.stringify({ ...stale, generatorVersion: 1, puzzle: null }))})`)
@@ -398,7 +400,7 @@ await sleep(300)
 check('unrenderable game offers discard', (await cdp.text()).includes('This saved game could not be opened.'))
 await cdp.click('button', 'Discard this game')
 await sleep(400)
-check('discard returns to a clean menu', !(await cdp.text()).includes('Continue ·') && (await cdp.eval(`localStorage.getItem('riddles.v1.game.sudoku')`)) === null)
+check('discard returns to a clean menu', !(await cdp.text()).includes('Continue at the bookmark') && (await cdp.eval(`localStorage.getItem('riddles.v1.game.sudoku')`)) === null)
 
 // Benchmark page
 await cdp.navigate(BASE + '?bench')

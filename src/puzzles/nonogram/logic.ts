@@ -142,6 +142,7 @@ function check(
 export const nonogramLogic: PuzzleLogic<NonogramPuzzle, NonogramSolution, NonogramState> = {
   id: 'nonogram',
   name: 'Nonogram',
+  tagline: 'picture logic',
   version: 1,
   sizes: [
     { id: '10', label: '10×10' },

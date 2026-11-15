@@ -32,8 +32,7 @@ export function App() {
 
   const savedGames = useMemo(() => {
     const { games, discarded } = loadAllGames()
-    if (discarded)
-      setNotice('A saved game from an older version could not be read and was removed.')
+    if (discarded) setNotice('A saved game from an older edition was discarded.')
     return games
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [menuVersion])

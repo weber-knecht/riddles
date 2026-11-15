@@ -27,6 +27,8 @@ export interface SizeOption {
 export interface PuzzleLogic<P = unknown, S = unknown, St = unknown> {
   id: string
   name: string
+  /** A few printed words after the name on the contents page. */
+  tagline: string
   /** Generator version, stored with saved games for diagnostics. */
   version: number
   sizes: SizeOption[]
