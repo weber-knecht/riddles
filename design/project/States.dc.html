@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Small states and messages</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Besley:wght@500;700;900&amp;family=Kalam:wght@400;700&amp;family=Libre+Franklin:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pb{--paper:#f4efe3;--paper-2:#ebe4d3;--print:#1c1a17;--print-soft:#5c564c;--line:#8f887a;--pen:#1d3f8f;--pencil:#615c54;--hl:#f3e58a;--stamp:#b3261e;--on-print:#f4efe3}
+.pb.dark{--paper:#1f1c18;--paper-2:#2a2621;--print:#ece5d6;--print-soft:#a9a194;--line:#6a6358;--pen:#9db9f5;--pencil:#aaa398;--hl:#4d4619;--stamp:#f08a7c;--on-print:#1f1c18}
+</style>
+</helmet>
+<div class="pb {{theme}}" style="width: 390px; height: 844px; box-sizing: border-box; padding: 20px 20px 16px; background: var(--paper); color: var(--print); font-family: 'Libre Franklin', sans-serif; display: flex; flex-direction: column; gap: 22px">
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; padding-bottom: 4px; border-bottom: 2px dotted var(--line); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--print-soft)">Update banner, top of the contents page</h2>
+<div role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 6px 6px 14px; background: var(--print); color: var(--on-print); border-radius: 2px">
+<span style="font-family: 'Besley', serif; font-weight: 700; font-size: 15px">A new edition is out.</span>
+<button style="min-height: 44px; padding: 0 16px; background: none; border: 1.5px solid var(--on-print); border-radius: 2px; color: var(--on-print); font-family: 'Besley', serif; font-weight: 700; font-size: 15px">Reload</button>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; padding-bottom: 4px; border-bottom: 2px dotted var(--line); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--print-soft)">New puzzle while a bookmark exists</h2>
+<p style="margin: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 16px">Tear out the page you started?</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+<button style="min-height: 48px; background: none; border: 1.5px solid var(--stamp); border-radius: 2px; color: var(--stamp); font-family: 'Besley', serif; font-weight: 700; font-size: 16px">Discard</button>
+<button style="min-height: 48px; background: none; border: 1.5px solid var(--print); border-radius: 2px; color: var(--print); font-family: 'Besley', serif; font-weight: 700; font-size: 16px">Keep</button>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; padding-bottom: 4px; border-bottom: 2px dotted var(--line); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--print-soft)">Generating, shown after 300 ms</h2>
+<p role="status" style="margin: 0; padding: 14px 0; text-align: center; font-family: 'Besley', serif; font-weight: 500; font-size: 18px; color: var(--print-soft)">Printing your puzzle…</p>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; padding-bottom: 4px; border-bottom: 2px dotted var(--line); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--print-soft)">Generation failed</h2>
+<p style="margin: 0; font-family: 'Besley', serif; font-weight: 700; font-size: 18px; color: var(--stamp)">Could not generate a puzzle.</p>
+<p style="margin: 0; font-size: 13px; font-weight: 500; color: var(--print-soft)">Generation timed out after 15 seconds.</p>
+<div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px">
+<button style="min-height: 48px; background: var(--print); border: 0; border-radius: 2px; color: var(--on-print); font-family: 'Besley', serif; font-weight: 700; font-size: 16px">Try again</button>
+<button style="min-height: 48px; background: none; border: 1.5px solid var(--print); border-radius: 2px; color: var(--print); font-family: 'Besley', serif; font-weight: 700; font-size: 16px">Back</button>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; padding-bottom: 4px; border-bottom: 2px dotted var(--line); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--print-soft)">One-line notice</h2>
+<p role="status" style="margin: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 18px; line-height: 1.25; color: var(--pencil)">A saved game from an older edition was discarded.</p>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; padding-bottom: 4px; border-bottom: 2px dotted var(--line); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--print-soft)">Tool button: idle, active, disabled</h2>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px">
+<button aria-pressed="false" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 58px; background: none; border: 1px solid var(--line); border-radius: 2px; color: var(--print); font-family: 'Libre Franklin', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path d="M3 19l1-5L15 3l4 4L8 18l-5 1zM13 5l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>Pencil</button>
+<button aria-pressed="true" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 58px; background: var(--hl); border: 2px solid var(--print); border-radius: 2px; color: var(--print); font-family: 'Libre Franklin', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path d="M3 19l1-5L15 3l4 4L8 18l-5 1zM13 5l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>Pencil</button>
+<button disabled style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 58px; background: none; border: 1px dashed var(--line); border-radius: 2px; color: var(--line); font-family: 'Libre Franklin', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path d="M4 9h9a5 5 0 010 10H8M4 9l4-4M4 9l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>Undo</button>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: (this.props.dark ?? false) ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

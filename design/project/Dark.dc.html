@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sudoku page in the dark theme with pencil active</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Besley:wght@500;700;900&amp;family=Kalam:wght@400;700&amp;family=Libre+Franklin:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pb{--paper:#f4efe3;--paper-2:#ebe4d3;--print:#1c1a17;--print-soft:#5c564c;--line:#8f887a;--pen:#1d3f8f;--pencil:#615c54;--hl:#f3e58a;--stamp:#b3261e;--on-print:#f4efe3}
+.pb.dark{--paper:#1f1c18;--paper-2:#2a2621;--print:#ece5d6;--print-soft:#a9a194;--line:#6a6358;--pen:#9db9f5;--pencil:#aaa398;--hl:#4d4619;--stamp:#f08a7c;--on-print:#1f1c18}
+</style>
+</helmet>
+<div class="pb {{theme}}" style="width: 390px; height: 844px; box-sizing: border-box; padding: 12px 20px 16px; background: var(--paper); color: var(--print); font-family: 'Libre Franklin', sans-serif; display: flex; flex-direction: column; gap: 14px">
+
+<header style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--print); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 4px; min-height: 44px; padding-right: 12px; text-decoration: none"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14"><path d="M9 2L4 7l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Contents</a>
+<span>Riddles</span>
+</header>
+
+<div style="display: flex; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase">Sudoku</span>
+<h1 style="margin: 0; font-family: 'Besley', serif; font-weight: 900; font-size: 34px; line-height: 1">No. 48213</h1>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-bottom: 3px">
+<div aria-hidden="true" style="display: flex; gap: 4px">
+<span style="width: 10px; height: 10px; background: var(--print); border: 1.5px solid var(--print); box-sizing: border-box"></span>
+<span style="width: 10px; height: 10px; background: var(--print); border: 1.5px solid var(--print); box-sizing: border-box"></span>
+<span style="width: 10px; height: 10px; border: 1.5px solid var(--print); box-sizing: border-box"></span>
+</div>
+<span style="font-family: 'Besley', serif; font-weight: 500; font-size: 15px">Medium</span>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); border: 2.5px solid var(--print); background: var(--paper)">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="81">
+<div style="position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; box-sizing: border-box; {{c.css}}">
+<sc-if value="{{c.given}}" hint-placeholder-val="{{ false }}"><span style="font-family: 'Besley', serif; font-weight: 700; font-size: 24px; line-height: 1; color: var(--print)">{{c.given}}</span></sc-if>
+<sc-if value="{{c.pen}}" hint-placeholder-val="{{ false }}"><span style="font-family: 'Kalam', cursive; font-weight: 700; font-size: 28px; line-height: 1; padding-top: 4px; color: var(--pen); transform: rotate({{c.tilt}}deg)">{{c.pen}}</span></sc-if>
+<sc-if value="{{c.hasMarks}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 2px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); font-family: 'Kalam', cursive; font-size: 11px; line-height: 11px; text-align: center; color: var(--pencil)"><sc-for list="{{c.marks}}" as="m" hint-placeholder-count="9"><span>{{m}}</span></sc-for></span></sc-if>
+</div>
+</sc-for>
+</div>
+
+<div role="group" aria-label="Digits" style="display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); border-bottom: 2px dotted var(--print)">
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">1</button>
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">2</button>
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">3</button>
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">4</button>
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">5</button>
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">6</button>
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">7</button>
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">8</button>
+<button style="height: 52px; padding: 6px 0 0; background: none; border: 0; font-family: 'Kalam', cursive; font-weight: 400; font-size: 22px; color: var(--pencil)">9</button>
+</div>
+
+<div role="toolbar" aria-label="Tools" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.3fr; gap: 8px">
+<button style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 58px; background: none; border: 1px solid var(--line); border-radius: 2px; color: var(--print); font-family: 'Libre Franklin', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path d="M4 9h9a5 5 0 010 10H8M4 9l4-4M4 9l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>Undo</button>
+<button aria-pressed="false" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 58px; background: none; border: 1px solid var(--line); border-radius: 2px; color: var(--print); font-family: 'Libre Franklin', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path d="M8 18l-5-5 9-9 7 7-7 7zM8 18h11M7.5 8.5l7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>Eraser</button>
+<button aria-pressed="true" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 58px; background: var(--hl); border: 2px solid var(--print); border-radius: 2px; color: var(--print); font-family: 'Libre Franklin', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path d="M3 19l1-5L15 3l4 4L8 18l-5 1zM13 5l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>Pencil</button>
+<button style="height: 58px; background: var(--print); color: var(--on-print); border: 0; border-radius: 2px; font-family: 'Besley', serif; font-weight: 700; font-size: 18px">Check</button>
+</div>
+
+<p role="status" style="margin: 0; min-height: 30px"></p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":true},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const given = ['53..7....', '6..195...', '.98....6.', '8...6...3', '4..8.3..1', '7...2...6', '.6....28.', '...419..5', '....8..79'];
+const pen = ['..46.8...', '.72......', '1........', '.59......', '....5....', '.1.......', '9........', '287......', '...2.....'];
+const marks = { '0,7': [1, 2, 4], '1,6': [3, 4], '2,3': [3, 5], '4,2': [2, 6], '4,6': [7, 9], '6,4': [3, 5], '8,0': [1, 3] };
+const selected = '4,2';
+const cells = [];
+for (let r = 0; r < 9; r++) {
+for (let c = 0; c < 9; c++) {
+const key = r + ',' + c;
+const g = given[r][c] === '.' ? '' : given[r][c];
+const p = pen[r][c] === '.' ? '' : pen[r][c];
+const m = marks[key];
+let css = '';
+if (c < 8) css += 'border-right: ' + (c % 3 === 2 ? '2px solid var(--print)' : '1px solid var(--line)') + ';';
+if (r < 8) css += 'border-bottom: ' + (r % 3 === 2 ? '2px solid var(--print)' : '1px solid var(--line)') + ';';
+if (key === selected) css += 'background: var(--hl);';
+cells.push({
+given: g,
+pen: p,
+tilt: ((r * 7 + c * 5) % 7) - 3,
+hasMarks: !!m,
+marks: m ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (m.includes(d) ? String(d) : '')) : [],
+css: css,
+});
+}
+}
+return { theme: (this.props.dark ?? true) ? 'dark' : '', cells: cells };
+}
+}
+</script>
+</body>
+</html>

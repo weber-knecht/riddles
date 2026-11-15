@@ -58,6 +58,7 @@ Releases are annotated git tags (`v1.0.0`). The version number comes from `packa
 - [docs/scope.md](docs/scope.md): what the app does and does not do, and the decisions behind it
 - [docs/architecture.md](docs/architecture.md): plugin contract, worker, storage, screens, offline behaviour
 - [docs/puzzles/](docs/puzzles/): how each generator works and how uniqueness and difficulty are guaranteed
+- [design/README.md](design/README.md): the "printed puzzle book" design, with one reference artboard per screen in `design/project/`
 - [CLAUDE.md](CLAUDE.md): working mode for development with Claude Code
 
 Work is tracked as GitHub issues, one per iteration.

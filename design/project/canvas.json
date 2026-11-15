@@ -1,0 +1,29 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-15T17:00:00Z" },
+  "title": "Riddles Puzzle Book Design",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 1040, "title": "Contents (menu)" },
+    "Sudoku.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "Sudoku page" },
+    "Binairo.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "Binairo page, checked" },
+    "Nonogram.dc.html": { "x": 1410, "y": 0, "w": 390, "h": 844, "title": "Nonogram page, cross mode" },
+    "Solved.dc.html": { "x": 1880, "y": 0, "w": 390, "h": 844, "title": "Solved" },
+    "States.dc.html": { "x": 2350, "y": 0, "w": 390, "h": 844, "title": "Small states" },
+    "Dark.dc.html": { "x": 2820, "y": 0, "w": 390, "h": 844, "title": "Dark theme" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Sudoku.dc.html",
+    "Binairo.dc.html",
+    "Nonogram.dc.html",
+    "Solved.dc.html",
+    "States.dc.html",
+    "Dark.dc.html"
+  ],
+  "notes": {
+    "heading": { "x": 0, "y": -300, "text": "Riddles as a printed puzzle book", "kind": "title1", "maxW": 3210 }
+  },
+  "designSystems": []
+}

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Riddles contents page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Besley:wght@500;700;900&amp;family=Kalam:wght@400;700&amp;family=Libre+Franklin:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.pb{--paper:#f4efe3;--paper-2:#ebe4d3;--print:#1c1a17;--print-soft:#5c564c;--line:#8f887a;--pen:#1d3f8f;--pencil:#615c54;--hl:#f3e58a;--stamp:#b3261e;--on-print:#f4efe3}
+.pb.dark{--paper:#1f1c18;--paper-2:#2a2621;--print:#ece5d6;--print-soft:#a9a194;--line:#6a6358;--pen:#9db9f5;--pencil:#aaa398;--hl:#4d4619;--stamp:#f08a7c;--on-print:#1f1c18}
+</style>
+</helmet>
+<div class="pb {{theme}}" style="width: 390px; height: 1040px; box-sizing: border-box; padding: 20px 20px 16px; background: var(--paper); color: var(--print); font-family: 'Libre Franklin', sans-serif; display: flex; flex-direction: column; gap: 18px">
+
+<header style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase">
+<span>Puzzle book</span>
+<span>Vol. 1.0.0</span>
+</div>
+<div style="height: 3px; border-top: 3px solid var(--print); border-bottom: 1px solid var(--print)"></div>
+<h1 style="margin: 0; text-align: center; font-family: 'Besley', serif; font-weight: 900; font-size: 68px; line-height: 1; letter-spacing: -0.02em">Riddles</h1>
+<div style="height: 3px; border-top: 1px solid var(--print); border-bottom: 3px solid var(--print)"></div>
+</header>
+
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase">Contents</h2>
+<span style="font-family: 'Kalam', cursive; font-size: 17px; color: var(--pen)">circle your choice</span>
+</div>
+
+<section aria-label="Sudoku" style="display: flex; flex-direction: column; gap: 6px; padding-bottom: 16px; border-bottom: 1px solid var(--print)">
+<div style="display: flex; align-items: flex-end; gap: 8px">
+<h3 style="margin: 0; font-family: 'Besley', serif; font-weight: 900; font-size: 28px; line-height: 1.1">Sudoku</h3>
+<span style="flex: 1; border-bottom: 2px dotted var(--line); margin-bottom: 7px"></span>
+<span style="font-family: 'Besley', serif; font-weight: 500; font-size: 15px; color: var(--print-soft)">9×9</span>
+</div>
+<div role="group" aria-label="Difficulty" style="display: flex; align-items: center; gap: 2px">
+<span style="width: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--print-soft)">Level</span>
+<button aria-pressed="false" style="min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 17px; color: var(--print)">Easy</button>
+<button aria-pressed="true" style="position: relative; min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 700; font-size: 17px; color: var(--print)">Medium<svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none" style="position: absolute; left: 0; top: 3px; width: 100%; height: 38px; overflow: visible; color: var(--pen)"><path d="M12 24C10 10 38 4 62 5c22 1 34 8 32 19-2 12-26 17-50 16C22 39 6 35 9 21c2-8 12-13 24-15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg></button>
+<button aria-pressed="false" style="min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 17px; color: var(--print)">Hard</button>
+</div>
+<button style="display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 14px 0 0; background: var(--print); color: var(--on-print); border: 0; border-radius: 2px; font-family: 'Besley', serif; font-weight: 700; font-size: 16px; text-align: left">
+<svg aria-hidden="true" width="26" height="52" viewBox="0 0 26 52" style="color: var(--stamp); flex: none"><path d="M6 0h14v40l-7-7-7 7z" fill="currentColor"></path></svg>
+<span style="display: flex; flex-direction: column; line-height: 1.25"><span>Continue at the bookmark</span><span style="font-family: 'Libre Franklin', sans-serif; font-weight: 500; font-size: 12px">No. 48213 · Medium</span></span>
+</button>
+<button style="min-height: 48px; background: none; color: var(--print); border: 1.5px solid var(--print); border-radius: 2px; font-family: 'Besley', serif; font-weight: 700; font-size: 16px">New puzzle · Medium</button>
+</section>
+
+<section aria-label="Binairo" style="display: flex; flex-direction: column; gap: 6px; padding-bottom: 16px; border-bottom: 1px solid var(--print)">
+<div style="display: flex; align-items: flex-end; gap: 8px">
+<h3 style="margin: 0; font-family: 'Besley', serif; font-weight: 900; font-size: 28px; line-height: 1.1">Binairo</h3>
+<span style="flex: 1; border-bottom: 2px dotted var(--line); margin-bottom: 7px"></span>
+<span style="font-family: 'Besley', serif; font-weight: 500; font-size: 15px; color: var(--print-soft)">0 and 1</span>
+</div>
+<div role="group" aria-label="Size" style="display: flex; align-items: center; gap: 2px">
+<span style="width: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--print-soft)">Size</span>
+<button aria-pressed="true" style="position: relative; min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 700; font-size: 17px; color: var(--print)">10×10<svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none" style="position: absolute; left: 0; top: 3px; width: 100%; height: 38px; overflow: visible; color: var(--pen)"><path d="M10 20C12 8 40 3 64 6c20 2 32 9 29 20-3 11-28 15-52 13C20 37 5 32 8 19c2-7 14-12 27-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg></button>
+<button aria-pressed="false" style="min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 17px; color: var(--print)">12×12</button>
+</div>
+<div role="group" aria-label="Difficulty" style="display: flex; align-items: center; gap: 2px">
+<span style="width: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--print-soft)">Level</span>
+<button aria-pressed="true" style="position: relative; min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 700; font-size: 17px; color: var(--print)">Easy<svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none" style="position: absolute; left: 0; top: 3px; width: 100%; height: 38px; overflow: visible; color: var(--pen)"><path d="M12 24C10 10 38 4 62 5c22 1 34 8 32 19-2 12-26 17-50 16C22 39 6 35 9 21c2-8 12-13 24-15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg></button>
+<button aria-pressed="false" style="min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 17px; color: var(--print)">Medium</button>
+<button aria-pressed="false" style="min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 17px; color: var(--print)">Hard</button>
+</div>
+<button style="min-height: 52px; background: var(--print); color: var(--on-print); border: 0; border-radius: 2px; font-family: 'Besley', serif; font-weight: 700; font-size: 16px">New puzzle · 10×10 · Easy</button>
+</section>
+
+<section aria-label="Nonogram" style="display: flex; flex-direction: column; gap: 6px; padding-bottom: 16px; border-bottom: 1px solid var(--print)">
+<div style="display: flex; align-items: flex-end; gap: 8px">
+<h3 style="margin: 0; font-family: 'Besley', serif; font-weight: 900; font-size: 28px; line-height: 1.1">Nonogram</h3>
+<span style="flex: 1; border-bottom: 2px dotted var(--line); margin-bottom: 7px"></span>
+<span style="font-family: 'Besley', serif; font-weight: 500; font-size: 15px; color: var(--print-soft)">picture logic</span>
+</div>
+<div role="group" aria-label="Size" style="display: flex; align-items: center; gap: 2px">
+<span style="width: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--print-soft)">Size</span>
+<button aria-pressed="false" style="min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 17px; color: var(--print)">10×10</button>
+<button aria-pressed="true" style="position: relative; min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 700; font-size: 17px; color: var(--print)">15×15<svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none" style="position: absolute; left: 0; top: 3px; width: 100%; height: 38px; overflow: visible; color: var(--pen)"><path d="M12 24C10 10 38 4 62 5c22 1 34 8 32 19-2 12-26 17-50 16C22 39 6 35 9 21c2-8 12-13 24-15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg></button>
+</div>
+<div role="group" aria-label="Difficulty" style="display: flex; align-items: center; gap: 2px">
+<span style="width: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--print-soft)">Level</span>
+<button aria-pressed="false" style="min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 17px; color: var(--print)">Easy</button>
+<button aria-pressed="false" style="min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 500; font-size: 17px; color: var(--print)">Medium</button>
+<button aria-pressed="true" style="position: relative; min-height: 44px; padding: 0 14px; background: none; border: 0; font-family: 'Besley', serif; font-weight: 700; font-size: 17px; color: var(--print)">Hard<svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none" style="position: absolute; left: 0; top: 3px; width: 100%; height: 38px; overflow: visible; color: var(--pen)"><path d="M10 20C12 8 40 3 64 6c20 2 32 9 29 20-3 11-28 15-52 13C20 37 5 32 8 19c2-7 14-12 27-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path></svg></button>
+</div>
+<button style="min-height: 52px; background: var(--print); color: var(--on-print); border: 0; border-radius: 2px; font-family: 'Besley', serif; font-weight: 700; font-size: 16px">New puzzle · 15×15 · Hard</button>
+</section>
+
+<div style="display: flex; flex-direction: column; gap: 2px">
+<label for="seed" style="font-size: 12px; font-weight: 500; color: var(--print-soft)">Looking for one particular puzzle? Write its number here (optional).</label>
+<div style="display: flex; align-items: flex-end; gap: 8px">
+<span style="font-family: 'Besley', serif; font-weight: 700; font-size: 18px; padding-bottom: 8px">No.</span>
+<input id="seed" type="text" inputmode="text" autocomplete="off" style="flex: 1; min-width: 0; height: 44px; padding: 0 4px; background: none; border: 0; border-bottom: 2px dotted var(--print); border-radius: 0; outline-offset: 2px; font-family: 'Kalam', cursive; font-weight: 700; font-size: 24px; color: var(--pen)">
+</div>
+</div>
+
+<footer style="margin-top: auto; display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--print); font-size: 11px; font-weight: 500; color: var(--print-soft)">
+<span>Vol. 1.0.0</span>
+<span>Printed 2026-11-15 16:20 UTC</span>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: (this.props.dark ?? false) ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>
