@@ -392,5 +392,23 @@ await cdp.click('button', 'Back to the app')
 await cdp.waitFor(`document.querySelector('section[aria-label="Sudoku"]')`)
 check('benchmark page leads back to the app', true)
 
+// Returning to the foreground looks for a new version, at most once per minute
+await cdp.waitFor(`navigator.serviceWorker.getRegistration().then((r) => !!r)`, 15000)
+await sleep(500)
+const updates = await cdp.eval(`(() => {
+  window.__updates = 0
+  ServiceWorkerRegistration.prototype.update = function () { window.__updates++; return Promise.resolve() }
+  const fire = () => document.dispatchEvent(new Event('visibilitychange'))
+  fire()
+  const early = window.__updates
+  const now = Date.now
+  Date.now = () => now() + 61000
+  fire()
+  fire()
+  Date.now = now
+  return [early, window.__updates]
+})()`)
+check('foreground update check runs once per minute', updates[0] === 0 && updates[1] === 1, updates.join(','))
+
 console.log(results.filter((r) => r[0] === 'FAIL').length + ' failures')
 await shutdown(process.exitCode ?? 0)
