@@ -33,6 +33,8 @@ export interface PuzzleLogic<P = unknown, S = unknown, St = unknown> {
   supportsPencil: boolean
   /** Label for the pencil tool when it means something else, e.g. 'Cross'. */
   pencilLabel?: string
+  /** Icon for the pencil tool. Defaults to a pencil. */
+  pencilIcon?: 'pencil' | 'cross'
   generate(rng: Rng, sizeId: string, difficulty: Difficulty): { puzzle: P; solution: S }
   initialState(puzzle: P): St
   check(puzzle: P, solution: S, state: St): CheckResult

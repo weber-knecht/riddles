@@ -143,7 +143,9 @@ await cdp.click(`${SUDOKU} button`, 'New ·')
 await cdp.waitFor(`document.querySelector('.sudoku .cell')`, 20000)
 const sg = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.sudoku'))`)
 check('sudoku saved with 81 givens and solution', sg.puzzle.givens.length === 81 && sg.solution.length === 81, 'seed ' + sg.seed)
-check('header shows seed', (await cdp.text()).includes('Seed ' + sg.seed))
+check('page title shows the puzzle number', (await cdp.text()).includes('No. ' + sg.seed))
+check('running head and difficulty squares', await cdp.eval(`document.querySelector('.running-head .back').textContent.trim() === 'Contents' && document.querySelectorAll('.page-title .squares .on').length === 1`))
+check('tool buttons carry an icon', (await cdp.eval(`document.querySelectorAll('.toolrow .tool svg').length`)) === 3)
 await checkFit('sudoku')
 check('sudoku renders givens', (await cdp.eval(`document.querySelectorAll('.sudoku .cell.given').length`)) > 20)
 check('digit row disabled without selection', await cdp.eval(`document.querySelector('.sudoku .digit-row button').disabled`))
@@ -161,6 +163,7 @@ check('cell selected', await cdp.eval(`document.querySelectorAll('.sudoku .cell'
 await clickDigit(sg.solution[first] === 1 ? 2 : 1)
 await cdp.click('button', 'Check')
 check('check reports mistakes', (await cdp.text()).includes('Contains mistakes.'))
+check('check line has a mark', (await cdp.eval(`document.querySelectorAll('.check-line svg').length`)) === 1)
 await cdp.click('button', 'Undo')
 check('undo clears digit', (await cellText(first)) === '')
 await cdp.click('button', 'Check')
@@ -240,7 +243,8 @@ async function newWithSeed(seed) {
   }
   await cdp.waitFor(`document.querySelector('.sudoku .cell')`, 20000)
   const g = await cdp.eval(`JSON.parse(localStorage.getItem('riddles.v1.game.sudoku'))`)
-  await cdp.eval('history.back()')
+  g.heading = await cdp.eval(`(() => { const h = document.querySelector('.page-title h1'); return [h.scrollWidth, h.clientWidth, h.getBoundingClientRect().height] })()`)
+  await cdp.click('.running-head .back')
   await sleep(400)
   return g
 }
@@ -250,6 +254,8 @@ check('seed normalised to uppercase', a.seed === 'ABC234')
 check('same seed gives same puzzle', JSON.stringify(a.puzzle) === JSON.stringify(b.puzzle) && JSON.stringify(a.solution) === JSON.stringify(b.solution))
 check('seed field cleared after use', (await cdp.eval(`document.querySelector('input[type=text]').value`)) === '')
 check('menu history state normalised', (await cdp.eval(`history.state?.screen`)) === 'menu')
+const wide = await newWithSeed('WWWWWWWWWWWW')
+check('twelve-character number stays on one line', wide.heading[0] <= wide.heading[1] && wide.heading[2] < 40, wide.heading.join(' '))
 await cdp.eval(`localStorage.removeItem('riddles.v1.game.sudoku')`)
 
 

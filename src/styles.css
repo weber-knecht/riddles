@@ -183,36 +183,168 @@ footer {
   font-size: 0.8rem;
 }
 
-/* Solve */
-.solve-header {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.75rem;
-  align-items: center;
-  margin-bottom: 1rem;
+/* Puzzle page: running head, title block, board, tools, check line */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
-.solve-header .title {
-  line-height: 1.25;
+.running-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--fg);
+}
+.running-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px 0 0;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.running-head .back svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.page-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.page-title .what {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.page-title .label {
+  font-size: 12px;
+}
+.page-title h1 {
+  margin: 0;
+  /* Solve.tsx lowers the size when a long typed number would not fit on the line. */
+  font: 900 34px/1 var(--font-print);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.page-title .level {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  padding-bottom: 3px;
+  font: 500 15px/1.2 var(--font-print);
+}
+.page-title .squares {
+  display: flex;
+  gap: 4px;
+}
+.page-title .squares span {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--fg);
+}
+.page-title .squares span.on {
+  background: var(--fg);
 }
 .board-frame {
-  width: min(100vw - 32px, 60vh);
-  margin: 0 auto 1rem;
+  width: min(100vw - 40px, 60vh);
+  margin: 0 auto;
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
 }
 .toolrow {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: 1fr 1fr 1fr 1.3fr;
+  gap: 8px;
 }
 .toolrow.no-pencil {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr 1.3fr;
 }
+.toolrow button {
+  height: 58px;
+  min-width: 0;
+  padding: 0;
+}
+.tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid var(--grid-line);
+  font: 700 11px/1.3 var(--font-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tool[aria-pressed='true'] {
+  background: var(--selection);
+  border: 2px solid var(--fg);
+}
+.tool:disabled {
+  border-style: dashed;
+  color: var(--grid-line);
+  opacity: 1;
+}
+.toolrow .check {
+  font-size: 18px;
+}
+/* The book answering back: red handwriting, with a tick or a cross. */
 .check-line {
-  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 30px;
+  margin: 0;
+  font: 700 24px/1 var(--font-hand);
+  color: var(--warn);
+  transform: rotate(-2deg);
+}
+.check-line svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.loading {
+  margin: 0;
+  padding: 14px 0;
   text-align: center;
-  margin-top: 0.75rem;
+  font: 500 18px/1.5 var(--font-print);
+  color: var(--muted);
+}
+.trouble {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.trouble p {
+  margin: 0;
+}
+.trouble-title {
+  font: 700 18px/1.3 var(--font-print);
+  color: var(--warn);
+}
+.trouble-detail {
+  font-size: 13px;
+  color: var(--muted);
+}
+.pair {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 8px;
 }
 .center {
   text-align: center;

@@ -149,6 +149,7 @@ export const nonogramLogic: PuzzleLogic<NonogramPuzzle, NonogramSolution, Nonogr
   ],
   supportsPencil: true,
   pencilLabel: 'Cross',
+  pencilIcon: 'cross',
   generate,
   initialState,
   check,

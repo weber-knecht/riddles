@@ -1,9 +1,10 @@
 import { Component, type ComponentChildren } from 'preact'
-import { useEffect, useRef, useState } from 'preact/hooks'
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
 import { ToolRow } from './ToolRow'
 import { cancelGeneration, generatePuzzle } from '../core/workerClient'
 import { SCHEMA, type SavedGame, type Store } from '../core/storage'
 import {
+  DIFFICULTIES,
   DIFFICULTY_LABEL,
   type CheckResult,
   type Difficulty,
@@ -23,7 +24,57 @@ export interface SolveProps {
   onNewSame(game: SavedGame): void
 }
 
-const SAVE_FAILED = 'Progress could not be saved.'
+/** What the line below the tool row says: a check result or a failed save. */
+type CheckLine = 'ok' | 'mistakes' | 'save-failed' | null
+
+function CheckLineView(props: { line: CheckLine }) {
+  const { line } = props
+  return (
+    <p class="check-line" role="status">
+      {line === 'ok' && (
+        <>
+          <svg aria-hidden="true" width="26" height="24" viewBox="0 0 26 24">
+            <path d="M3 13c3 2 5 5 6 8C12 13 17 6 24 2" />
+          </svg>
+          Correct so far.
+        </>
+      )}
+      {line === 'mistakes' && (
+        <>
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22">
+            <path d="M4 4l14 14M18 4L4 18" />
+          </svg>
+          Contains mistakes.
+        </>
+      )}
+      {line === 'save-failed' && 'Progress could not be saved.'}
+    </p>
+  )
+}
+
+/** The puzzle number as the page heading. A long typed number is set smaller to stay on one line. */
+function PuzzleNumber(props: { seed: string }) {
+  const ref = useRef<HTMLHeadingElement>(null)
+  useLayoutEffect(() => {
+    let current = true
+    const fit = () => {
+      const h = ref.current
+      if (!h || !current) return
+      h.style.fontSize = ''
+      const full = parseFloat(getComputedStyle(h).fontSize)
+      if (h.scrollWidth > h.clientWidth) {
+        h.style.fontSize = `${Math.floor((full * h.clientWidth) / h.scrollWidth)}px`
+      }
+    }
+    fit()
+    // The print face may arrive after the first layout and is wider than the fallback.
+    void document.fonts.ready.then(fit)
+    return () => {
+      current = false
+    }
+  }, [props.seed])
+  return <h1 ref={ref}>No. {props.seed}</h1>
+}
 
 /** Last line of defence: a saved game the board cannot render never leaves a blank page. */
 class BoardBoundary extends Component<
@@ -37,8 +88,8 @@ class BoardBoundary extends Component<
   render() {
     if (!this.state.failed) return this.props.children
     return (
-      <div class="center">
-        <p class="warn">This saved game could not be opened.</p>
+      <div class="trouble">
+        <p class="trouble-title">This saved game could not be opened.</p>
         <button class="danger" onClick={this.props.onDiscard}>
           Discard this game
         </button>
@@ -68,7 +119,7 @@ export function Solve(props: SolveProps) {
   const logic = plugin.logic
   const [phase, setPhase] = useState<Phase>({ kind: 'loading' })
   const [tool, setTool] = useState<Tool>('pen')
-  const [checkLine, setCheckLine] = useState<string | null>(null)
+  const [checkLine, setCheckLine] = useState<CheckLine>(null)
   const attempt = useRef(0)
 
   function start() {
@@ -105,7 +156,7 @@ export function Solve(props: SolveProps) {
           startedAt: now,
           updatedAt: now,
         }
-        if (!store.saveGame(game)) setCheckLine(SAVE_FAILED)
+        if (!store.saveGame(game)) setCheckLine('save-failed')
         setPhase({ kind: 'playing', game })
       },
       (error: unknown) => {
@@ -129,34 +180,57 @@ export function Solve(props: SolveProps) {
     const next: SavedGame = { ...game, ...patch, updatedAt: new Date().toISOString() }
     const saved = store.saveGame(next)
     setPhase({ kind: 'playing', game: next })
-    setCheckLine(saved ? null : SAVE_FAILED)
+    setCheckLine(saved ? null : 'save-failed')
   }
 
-  const header = (game: SavedGame | null) => (
-    <div class="solve-header">
-      <button onClick={props.onExit} aria-label="Back to menu">
-        ←
-      </button>
-      <div class="title">
-        <strong>{logic.name}</strong>
-        {game && (
-          <div class="muted">
-            {logic.sizes.find((s) => s.id === game.sizeId)?.label ?? game.sizeId} ·{' '}
-            {DIFFICULTY_LABEL[game.difficulty]} · Seed {game.seed}
+  // The page header is known before the puzzle exists: a new game brings its own details.
+  const page = (game: SavedGame | null) => {
+    const info = game ?? (mode.kind === 'new' ? mode : null)
+    const level = info ? DIFFICULTIES.indexOf(info.difficulty) : -1
+    return (
+      <>
+        <header class="running-head label">
+          <button class="back" onClick={props.onExit} aria-label="Back to contents">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14">
+              <path d="M9 2L4 7l5 5" />
+            </svg>
+            Contents
+          </button>
+          <span>Riddles</span>
+        </header>
+        <div class="page-title">
+          <div class="what">
+            <span class="label">
+              {logic.name}
+              {info &&
+                logic.sizes.length > 1 &&
+                ` · ${logic.sizes.find((s) => s.id === info.sizeId)?.label ?? info.sizeId}`}
+            </span>
+            {info && <PuzzleNumber seed={info.seed} />}
           </div>
-        )}
-      </div>
-    </div>
-  )
+          {info && (
+            <div class="level">
+              <div class="squares" aria-hidden="true">
+                {DIFFICULTIES.map((d, i) => (
+                  <span key={d} class={i <= level ? 'on' : ''} />
+                ))}
+              </div>
+              <span>{DIFFICULTY_LABEL[info.difficulty]}</span>
+            </div>
+          )}
+        </div>
+      </>
+    )
+  }
 
   if (phase.kind === 'loading') {
     return (
-      <main>
-        {header(null)}
+      <main class="page">
+        {page(null)}
         <Delayed ms={300}>
-          <div class="center muted" role="status">
-            Generating…
-          </div>
+          <p class="loading" role="status">
+            Printing your puzzle…
+          </p>
         </Delayed>
       </main>
     )
@@ -164,12 +238,12 @@ export function Solve(props: SolveProps) {
 
   if (phase.kind === 'error') {
     return (
-      <main>
-        {header(null)}
-        <div class="center">
-          <p class="warn">Could not generate a puzzle.</p>
-          <p class="muted">{phase.message}</p>
-          <div class="row">
+      <main class="page">
+        {page(null)}
+        <div class="trouble">
+          <p class="trouble-title">Could not generate a puzzle.</p>
+          <p class="trouble-detail">{phase.message}</p>
+          <div class="pair">
             <button class="primary" onClick={start}>
               Try again
             </button>
@@ -182,8 +256,8 @@ export function Solve(props: SolveProps) {
 
   if (phase.kind === 'solved') {
     return (
-      <main>
-        {header(phase.game)}
+      <main class="page">
+        {page(phase.game)}
         <div class="center">
           <h2>Solved</h2>
           <div class="row">
@@ -206,13 +280,13 @@ export function Solve(props: SolveProps) {
       store.clearGame(logic.id)
       setPhase({ kind: 'solved', game })
     } else {
-      setCheckLine(result === 'ok' ? 'Correct so far.' : 'Contains mistakes.')
+      setCheckLine(result)
     }
   }
 
   return (
-    <main>
-      {header(game)}
+    <main class="page">
+      {page(game)}
       <div class="board-frame">
         <BoardBoundary
           onDiscard={() => {
@@ -232,14 +306,13 @@ export function Solve(props: SolveProps) {
         tool={tool}
         supportsPencil={logic.supportsPencil}
         pencilLabel={logic.pencilLabel}
+        pencilIcon={logic.pencilIcon}
         canUndo={game.undo !== null}
         onTool={setTool}
         onUndo={() => game.undo !== null && update(game, { state: game.undo, undo: null })}
         onCheck={onCheck}
       />
-      <p class="check-line muted" role="status">
-        {checkLine ?? ''}
-      </p>
+      <CheckLineView line={checkLine} />
     </main>
   )
 }
