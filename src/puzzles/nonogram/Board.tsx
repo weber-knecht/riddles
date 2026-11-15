@@ -204,7 +204,7 @@ export function NonogramBoard({
         class="grid"
         role="grid"
         aria-label="Nonogram grid"
-        style={`grid-template-columns: repeat(${n}, 1fr)`}
+        style={`grid-template: repeat(${n}, minmax(0, 1fr)) / repeat(${n}, minmax(0, 1fr))`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

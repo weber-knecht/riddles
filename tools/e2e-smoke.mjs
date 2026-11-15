@@ -330,6 +330,8 @@ check('nonogram undo clears fill', !(await nClass(nEmpties[0])).includes('filled
 await cdp.click('button', 'Cross')
 await nCell(nEmpties[0])
 check('nonogram cross mode marks a cross', (await nClass(nEmpties[0])).includes('cross'))
+const nHeights = await cdp.eval(`(() => { const h = [...document.querySelectorAll('.nonogram .cell')].map(c => c.getBoundingClientRect().height); return [Math.min(...h), Math.max(...h)] })()`)
+check('nonogram rows keep equal height with a cross', nHeights[1] - nHeights[0] < 1, nHeights.map((v) => v.toFixed(1)).join(' to '))
 await cdp.click('button', 'Check')
 check('nonogram cross ignored by check', (await cdp.text()).includes('Correct so far.'))
 await cdp.click('button', 'Cross')

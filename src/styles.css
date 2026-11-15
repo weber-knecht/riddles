@@ -413,6 +413,7 @@ footer {
 .nonogram .cell {
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
   border-right: 1px solid var(--grid-line);
   border-bottom: 1px solid var(--grid-line);
   display: flex;
