@@ -23,6 +23,8 @@ export function NonogramBoard({
   const strokeRef = useRef<Stroke | null>(null)
   const [preview, setPreview] = useState<Set<number> | null>(null)
   const [focus, setFocus] = useState<number | null>(null)
+  // The focus cell is only marked while the keyboard is in use; a tap leaves no trace.
+  const [keys, setKeys] = useState(false)
 
   function actionFor(start: number): Action {
     const v = state.cells[start] ?? 0
@@ -91,6 +93,7 @@ export function NonogramBoard({
       cells: new Set([start]),
     }
     setFocus(start)
+    setKeys(false)
     setPreview(action ? new Set([start]) : null)
   }
 
@@ -129,6 +132,7 @@ export function NonogramBoard({
   }
 
   function onKeyDown(e: KeyboardEvent) {
+    setKeys(true)
     if (focus === null && e.key.startsWith('Arrow')) {
       setFocus(0)
       e.preventDefault()
@@ -162,7 +166,7 @@ export function NonogramBoard({
     const classes = ['cell']
     if (v === 1) classes.push('filled')
     if (v === 2) classes.push('cross')
-    if (focus === i) classes.push('focus')
+    if (keys && focus === i) classes.push('focus')
     if (c % 5 === 4 && c !== n - 1) classes.push('thick-r')
     if (r % 5 === 4 && r !== n - 1) classes.push('thick-b')
     cells.push(
@@ -172,7 +176,11 @@ export function NonogramBoard({
         role="gridcell"
         aria-label={`Row ${r + 1} column ${c + 1}${v === 1 ? ', filled' : v === 2 ? ', cross' : ''}`}
       >
-        {v === 2 ? '×' : ''}
+        {v === 2 && (
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path d="M3 3.5l10 9.5M13 3L3.5 13" />
+          </svg>
+        )}
       </div>,
     )
   }

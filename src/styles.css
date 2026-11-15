@@ -501,20 +501,25 @@ input[type='text'] {
   font-variant-numeric: tabular-nums;
 }
 
-/* Sudoku board */
+/* Sudoku board. Sizes follow the board width: 1cqw is one hundredth of it. */
 .sudoku {
   outline: none;
+  container-type: inline-size;
 }
 .sudoku .grid {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  grid-template: repeat(9, minmax(0, 1fr)) / repeat(9, minmax(0, 1fr));
   width: 100%;
   aspect-ratio: 1;
-  border: 2px solid var(--grid-bold);
-  background: var(--surface);
+  border: 2.5px solid var(--grid-bold);
+  background: var(--bg);
 }
+/* A cell is print unless the player wrote in it. */
 .sudoku .cell {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -522,11 +527,8 @@ input[type='text'] {
   border-right: 1px solid var(--grid-line);
   border-bottom: 1px solid var(--grid-line);
   border-radius: 0;
-  background: transparent;
-  color: var(--ink-pen);
-  font-size: clamp(1.1rem, 5vw, 1.8rem);
-  line-height: 1;
-  aspect-ratio: 1;
+  color: var(--ink-given);
+  font: 700 6.86cqw/1 var(--font-print);
 }
 .sudoku .cell:nth-child(9n) {
   border-right: 0;
@@ -540,68 +542,90 @@ input[type='text'] {
 .sudoku .cell.box-b {
   border-bottom: 2px solid var(--grid-bold);
 }
-.sudoku .cell.given {
-  color: var(--ink-given);
-  font-weight: 700;
-}
 .sudoku .cell.selected {
   background: var(--selection);
+}
+.sudoku .pen {
+  padding-top: 0.14em;
+  color: var(--ink-pen);
+  font: 700 8cqw/1 var(--font-hand);
+  transform: rotate(var(--tilt));
 }
 .sudoku .marks {
   position: absolute;
   inset: 2px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   color: var(--ink-pencil);
-  font-size: clamp(0.5rem, 2.2vw, 0.75rem);
-  line-height: 1;
+  font: 400 3.14cqw/1 var(--font-hand);
 }
 .sudoku .marks span {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+/* The digits to write with, in the ink of the current tool. */
 .sudoku .digit-row {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 4px;
-  margin-top: 0.75rem;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  margin-top: 14px;
+  border-bottom: 2px dotted var(--fg);
 }
 .sudoku .digit-row button {
+  height: 52px;
   min-width: 0;
-  padding: 0;
-  font-size: 1.3rem;
+  padding: 6px 0 0;
+  border: 0;
+  color: var(--ink-pen);
+  font: 700 30px/1 var(--font-hand);
+}
+.sudoku .digit-row.pencil button {
+  color: var(--ink-pencil);
+  font-weight: 400;
+  font-size: 22px;
+}
+.sudoku .digit-row button:disabled {
+  color: var(--grid-line);
+  opacity: 1;
 }
 
-/* Binairo board */
+/* Binairo board. The grid lines are the gaps between the paper cells. */
 .binairo {
   outline: none;
+  container-type: inline-size;
 }
 .binairo .grid {
   display: grid;
+  grid-template: repeat(var(--n), minmax(0, 1fr)) / repeat(var(--n), minmax(0, 1fr));
+  gap: 1px;
   width: 100%;
   aspect-ratio: 1;
-  border: 2px solid var(--grid-bold);
-  background: var(--surface);
+  border: 2.5px solid var(--grid-bold);
+  background: var(--grid-line);
 }
 .binairo .cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
   min-height: 0;
   padding: 0;
   border: 0;
-  outline: 1px solid var(--grid-line);
-  outline-offset: -0.5px;
   border-radius: 0;
-  background: transparent;
-  color: var(--ink-pen);
-  font-size: clamp(0.9rem, 4vw, 1.4rem);
-  line-height: 1;
-  aspect-ratio: 1;
-}
-.binairo .cell.given {
+  background: var(--bg);
   color: var(--ink-given);
+  font-family: var(--font-print);
   font-weight: 700;
+  font-size: calc(60cqw / var(--n));
+  line-height: 1;
+}
+.binairo .pen {
+  padding-top: 0.16em;
+  color: var(--ink-pen);
+  font-family: var(--font-hand);
+  font-size: calc(71.4cqw / var(--n));
+  transform: rotate(var(--tilt));
 }
 .binairo .cell.focus {
   background: var(--selection);
@@ -610,77 +634,75 @@ input[type='text'] {
 /* Nonogram board */
 .nonogram {
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-columns: minmax(65px, auto) minmax(0, 1fr);
+  grid-template-rows: minmax(65px, auto) 1fr;
   outline: none;
-  --clue-font: 0.8rem;
-  --clue-gap: 0.55em;
+  --clue-font: 14px;
+  --clue-gap: 7px;
 }
+/* Fifteen lines need every pixel: the gutters are only as wide as the clues. */
 .nonogram.big {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
   --clue-font: 0.6rem;
   --clue-gap: 0.5em;
 }
+/* The padding stands in for the grid border, so clues line up with their cells. */
 .nonogram .col-clues {
   display: grid;
   align-items: end;
-  border-left: 2px solid transparent;
-  border-right: 2px solid transparent;
+  padding: 0 2.5px;
 }
 .nonogram .row-clues {
   display: grid;
-  border-top: 2px solid transparent;
-  border-bottom: 2px solid transparent;
+  padding: 2.5px 0;
 }
 .nonogram .clue {
   display: flex;
-  font-size: var(--clue-font);
-  line-height: 1.15;
-  color: var(--ink-given);
-  font-weight: 600;
   min-width: 0;
   min-height: 0;
+  color: var(--ink-given);
+  font: 700 var(--clue-font) / 1.07 var(--font-print);
 }
 .nonogram .clue.col {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 0 0 0.25em;
-  gap: 0.05em;
+  gap: 1px;
+  padding-bottom: 0.36em;
 }
 .nonogram .clue.row {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  padding: 0 0.3em 0 0.1em;
   gap: var(--clue-gap);
+  padding: 0 0.5em 0 0.1em;
 }
-.nonogram .clue.col.thick-r {
+.nonogram.big .clue.col.thick-r {
   border-right: 1px solid var(--grid-line);
 }
-.nonogram .clue.row.thick-b {
+.nonogram.big .clue.row.thick-b {
   border-bottom: 1px solid var(--grid-line);
 }
 .nonogram .grid {
   display: grid;
   width: 100%;
   aspect-ratio: 1;
-  border: 2px solid var(--grid-bold);
-  background: var(--surface);
+  border: 2.5px solid var(--grid-bold);
+  background: var(--bg);
   touch-action: none;
   cursor: pointer;
 }
 .nonogram .cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
   border-right: 1px solid var(--grid-line);
   border-bottom: 1px solid var(--grid-line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink-pencil);
-  font-size: var(--clue-font);
-  line-height: 1;
   user-select: none;
 }
 .nonogram .cell.thick-r {
@@ -689,9 +711,25 @@ input[type='text'] {
 .nonogram .cell.thick-b {
   border-bottom: 2px solid var(--grid-bold);
 }
-.nonogram .cell.filled {
+/* A filled cell is scribbled in with the pen, not quite to the lines. */
+.nonogram .cell.filled::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
   background: var(--fill);
+  border-radius: 3px 2px 3px 2px;
+}
+.nonogram.big .cell.filled::after {
+  inset: 1.5px;
+}
+.nonogram .cell svg {
+  width: 54%;
+  height: 54%;
+  fill: none;
+  stroke: var(--ink-pen);
+  stroke-width: 1.6;
+  stroke-linecap: round;
 }
 .nonogram .cell.focus {
-  box-shadow: inset 0 0 0 2px var(--accent);
+  background: var(--selection);
 }

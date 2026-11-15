@@ -10,6 +10,8 @@ export function BinairoBoard({
 }: BoardProps<BinairoPuzzle, BinairoState>) {
   const { n, givens } = puzzle
   const [focus, setFocus] = useState<number | null>(null)
+  // The focus cell is only marked while the keyboard is in use; a tap leaves no trace.
+  const [keys, setKeys] = useState(false)
 
   function setCell(i: number, v: number) {
     if ((givens[i] ?? -1) !== -1) return
@@ -22,12 +24,14 @@ export function BinairoBoard({
   function tapCell(i: number) {
     if ((givens[i] ?? -1) !== -1) return
     setFocus(i)
+    setKeys(false)
     const current = state.cells[i] ?? -1
     if (tool === 'erase') setCell(i, -1)
     else setCell(i, current === -1 ? 0 : current === 0 ? 1 : -1)
   }
 
   function onKeyDown(e: KeyboardEvent) {
+    setKeys(true)
     if (e.key === '0' || e.key === '1') {
       if (focus !== null) setCell(focus, Number(e.key))
       e.preventDefault()
@@ -59,7 +63,7 @@ export function BinairoBoard({
     const value = given !== -1 ? given : (state.cells[i] ?? -1)
     const classes = ['cell']
     if (given !== -1) classes.push('given')
-    if (focus === i) classes.push('focus')
+    if (keys && focus === i) classes.push('focus')
     const r = Math.floor(i / n) + 1
     const c = (i % n) + 1
     cells.push(
@@ -70,19 +74,20 @@ export function BinairoBoard({
         aria-label={`Row ${r} column ${c}${given !== -1 ? `, given ${given}` : value !== -1 ? `, ${value}` : ''}`}
         onClick={() => tapCell(i)}
       >
-        {value === -1 ? '' : value}
+        {given !== -1 ? (
+          given
+        ) : value !== -1 ? (
+          <span class="pen" style={`--tilt: ${(((r - 1) * 5 + (c - 1) * 3) % 7) - 3}deg`}>
+            {value}
+          </span>
+        ) : null}
       </button>,
     )
   }
 
   return (
-    <div class="binairo" tabIndex={0} onKeyDown={onKeyDown}>
-      <div
-        class="grid"
-        role="grid"
-        aria-label="Binairo grid"
-        style={`grid-template-columns: repeat(${n}, 1fr)`}
-      >
+    <div class="binairo" style={`--n: ${n}`} tabIndex={0} onKeyDown={onKeyDown}>
+      <div class="grid" role="grid" aria-label="Binairo grid">
         {cells}
       </div>
     </div>

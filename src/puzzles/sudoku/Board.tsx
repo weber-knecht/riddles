@@ -91,7 +91,10 @@ export function SudokuBoard({
         {given ? (
           given
         ) : value ? (
-          value
+          // Handwriting leans a little, the same way every time this cell is drawn.
+          <span class="pen" style={`--tilt: ${((r * 7 + c * 5) % 7) - 3}deg`}>
+            {value}
+          </span>
         ) : marks ? (
           <span class="marks" aria-hidden="true">
             {DIGITS.map((d) => (
@@ -109,7 +112,11 @@ export function SudokuBoard({
       <div class="grid" role="grid" aria-label="Sudoku grid">
         {cells}
       </div>
-      <div class="digit-row" role="group" aria-label="Digits">
+      <div
+        class={`digit-row${tool === 'pencil' ? ' pencil' : ''}`}
+        role="group"
+        aria-label="Digits"
+      >
         {DIGITS.map((d) => (
           <button key={d} type="button" disabled={digitsDisabled} onClick={() => enterDigit(d)}>
             {d}
