@@ -363,5 +363,14 @@ await cdp.click('button', 'Discard this game')
 await sleep(400)
 check('discard returns to a clean menu', !(await cdp.text()).includes('Continue ·') && (await cdp.eval(`localStorage.getItem('riddles.v1.game.sudoku')`)) === null)
 
+// Benchmark page
+await cdp.navigate(BASE + '?bench')
+await cdp.waitFor(`document.body.innerText.includes('Done.')`, 240000)
+t = await cdp.text()
+check('benchmark finishes with a row per puzzle size', t.includes('Slowest overall') && (await cdp.eval(`document.querySelectorAll('.bench tbody tr').length`)) === 5, t.split('\n').filter((l) => l.includes('Slowest overall')).join(''))
+await cdp.click('button', 'Back to the app')
+await cdp.waitFor(`document.querySelector('section[aria-label="Sudoku"]')`)
+check('benchmark page leads back to the app', true)
+
 console.log(results.filter((r) => r[0] === 'FAIL').length + ' failures')
 await shutdown(process.exitCode ?? 0)

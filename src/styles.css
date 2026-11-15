@@ -206,6 +206,20 @@ footer {
   justify-items: center;
 }
 
+/* Benchmark page */
+.bench table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.bench th,
+.bench td {
+  text-align: left;
+  padding: 0.4rem 0.5rem 0.4rem 0;
+  border-bottom: 1px solid var(--grid-line);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Sudoku board */
 .sudoku {
   outline: none;

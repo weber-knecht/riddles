@@ -1,7 +1,7 @@
 import { Component, type ComponentChildren } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { ToolRow } from './ToolRow'
-import { generatePuzzle } from '../core/workerClient'
+import { cancelGeneration, generatePuzzle } from '../core/workerClient'
 import { SCHEMA, type SavedGame, type Store } from '../core/storage'
 import {
   DIFFICULTY_LABEL,
@@ -45,6 +45,16 @@ class BoardBoundary extends Component<
       </div>
     )
   }
+}
+
+/** Renders its children only after a delay, so fast generations do not flash a message. */
+function Delayed(props: { ms: number; children: ComponentChildren }) {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), props.ms)
+    return () => clearTimeout(timer)
+  }, [props.ms])
+  return show ? <>{props.children}</> : null
 }
 
 type Phase =
@@ -105,8 +115,15 @@ export function Solve(props: SolveProps) {
     )
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(start, [logic.id, mode])
+  useEffect(() => {
+    start()
+    // Leaving the screen while a puzzle is still being generated cancels it.
+    return () => {
+      attempt.current++
+      cancelGeneration()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logic.id, mode])
 
   function update(game: SavedGame, patch: Partial<SavedGame>) {
     const next: SavedGame = { ...game, ...patch, updatedAt: new Date().toISOString() }
@@ -136,7 +153,11 @@ export function Solve(props: SolveProps) {
     return (
       <main>
         {header(null)}
-        <div class="center muted">Generating…</div>
+        <Delayed ms={300}>
+          <div class="center muted" role="status">
+            Generating…
+          </div>
+        </Delayed>
       </main>
     )
   }

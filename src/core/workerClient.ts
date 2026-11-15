@@ -33,26 +33,37 @@ function getWorker(): Worker {
       p.reject(new Error(reply.error))
     }
   }
-  worker.onerror = (event) => {
-    const error = new Error(event.message || 'Worker failed')
-    for (const p of pending.values()) {
-      clearTimeout(p.timer)
-      p.reject(error)
-    }
-    pending.clear()
-    worker?.terminate()
-    worker = null
-  }
+  worker.onerror = (event) => resetWorker(new Error(event.message || 'Worker failed'))
   return worker
+}
+
+/** Rejects everything in flight and drops the worker; the next request starts a fresh one. */
+function resetWorker(error: Error) {
+  for (const p of pending.values()) {
+    clearTimeout(p.timer)
+    p.reject(error)
+  }
+  pending.clear()
+  worker?.terminate()
+  worker = null
+}
+
+/**
+ * Abandons a running generation, so a puzzle nobody waits for any more does
+ * not delay the next request. Does nothing when the worker is idle.
+ */
+export function cancelGeneration() {
+  if (pending.size > 0) resetWorker(new Error('Generation cancelled'))
 }
 
 export function generatePuzzle(req: Omit<GenerateRequest, 'requestId'>): Promise<Generated> {
   const requestId = nextId++
   return new Promise<Generated>((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      pending.delete(requestId)
-      reject(new Error('Generation timed out'))
-    }, TIMEOUT_MS)
+    // A timed-out worker is still busy with the old request, so it is replaced.
+    const timer = window.setTimeout(
+      () => resetWorker(new Error('Generation timed out')),
+      TIMEOUT_MS,
+    )
     pending.set(requestId, { resolve, reject, timer })
     getWorker().postMessage({ ...req, requestId } satisfies GenerateRequest)
   })
