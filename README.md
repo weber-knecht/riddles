@@ -4,7 +4,7 @@ A personal puzzle app for one phone. It generates Sudoku, Binairo and Nonogram p
 
 Live app: https://weber-knecht.github.io/riddles/
 
-It is a static web app (TypeScript, Vite, Preact) installed as a PWA. There is no backend. After the first load it runs fully offline; saved games live in the browser's localStorage.
+It is a static web app (TypeScript, Vite, Preact) installed as a PWA. There is no backend. After the first load it runs fully offline; saved games live in the browser's localStorage. It looks like a printed puzzle book: the book's own marks are print, yours are pen and pencil. The three typefaces (Besley, Kalam, Libre Franklin) are bundled with the app.
 
 ## Install on the phone
 
@@ -12,7 +12,7 @@ It is a static web app (TypeScript, Vite, Preact) installed as a PWA. There is n
 2. Chrome menu (⋮), "Add to Home screen", then "Install".
 3. Start the app from the home screen. From now on it works in airplane mode.
 
-When a new version has been deployed, the app shows "A new version is available." with a Reload button the next time it is opened or brought back to the foreground while online. Nothing changes until you tap Reload. The menu footer shows the running version and build time.
+When a new version has been deployed, the app shows "A new edition is out." with a Reload button the next time it is opened or brought back to the foreground while online. Nothing changes until you tap Reload. The footer of the contents page shows the running version ("Vol.") and build time ("Printed").
 
 DuckDuckGo is not supported: its data clearing removes the service worker, so offline use cannot be guaranteed there.
 
@@ -51,7 +51,7 @@ Opening the app with `?bench` (https://weber-knecht.github.io/riddles/?bench) ge
 
 Every push to `main` runs `.github/workflows/deploy.yml`: install, `npm test`, `npm run build`, then publish `dist/` to GitHub Pages. A failing test stops the deploy. The phone picks the new build up through the update banner.
 
-Releases are annotated git tags (`v1.0.0`). The version number comes from `package.json`.
+Releases are annotated git tags (`v1.0.0`, `v1.1.0`). The version number comes from `package.json`.
 
 ## Documentation
 
