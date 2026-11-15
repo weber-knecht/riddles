@@ -1,0 +1,53 @@
+/*
+ * Self-hosted fonts, Latin subset, WOFF2 only. The service worker precaches
+ * them, so the app never asks a font server for anything.
+ */
+@font-face {
+  font-family: 'Besley';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('@fontsource/besley/files/besley-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Besley';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/besley/files/besley-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Besley';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('@fontsource/besley/files/besley-latin-900-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Kalam';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/kalam/files/kalam-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Kalam';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/kalam/files/kalam-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Libre Franklin';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('@fontsource/libre-franklin/files/libre-franklin-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Libre Franklin';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/libre-franklin/files/libre-franklin-latin-700-normal.woff2') format('woff2');
+}

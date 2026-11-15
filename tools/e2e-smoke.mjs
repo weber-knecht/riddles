@@ -118,6 +118,15 @@ check('menu has no placeholder puzzle', !t.includes('Counts'))
 check('footer shows version and build time', /v\d+\.\d+\.\d+ · Build \d{4}-/.test(t), t.split('\n').pop())
 check('no continue initially', !t.includes('Continue ·'))
 
+// Fonts are self-hosted and precached
+const FACES = ['500 16px Besley', '700 16px Besley', '900 16px Besley', '400 16px Kalam', '700 16px Kalam', '500 16px "Libre Franklin"', '700 16px "Libre Franklin"']
+const loaded = await cdp.eval(`Promise.all(${JSON.stringify(FACES)}.map((f) => document.fonts.load(f))).then((r) => r.map((faces) => faces.length))`)
+check('all seven font faces load', loaded.every((n) => n === 1), loaded.join(','))
+check('nothing is fetched from another origin', await cdp.eval(`performance.getEntriesByType('resource').every((e) => e.name.startsWith(location.origin))`))
+const sw = await (await fetch(BASE + 'sw.js')).text()
+const precachedFonts = sw.match(/[\w-]+\.woff2?(?=")/g) ?? []
+check('service worker precaches seven woff2 files and no woff', precachedFonts.length === 7 && precachedFonts.every((f) => f.endsWith('.woff2')), precachedFonts.length + ' font files')
+
 // ---- Shell, exercised through Sudoku ----
 const SUDOKU = 'section[aria-label="Sudoku"]'
 const undoDisabled = () => cdp.eval(`[...document.querySelectorAll('button')].find(b => b.textContent.trim()==='Undo').disabled`)

@@ -1,36 +1,39 @@
 :root {
-  --bg: #f6f1e7;
-  --surface: #fffdf8;
-  --fg: #2b2b2b;
-  --muted: #6b6560;
-  --accent: #1f6f8b;
-  --accent-fg: #ffffff;
-  --warn: #a33a2a;
-  --grid-line: #b9b1a4;
-  --grid-bold: #2b2b2b;
-  --ink-given: #2b2b2b;
-  --ink-pen: #1f4e79;
-  --ink-pencil: #6e685e;
-  --selection: #e4ecd8;
-  --fill: #3a3a3a;
+  /* Paper and print */
+  --bg: #f4efe3;
+  --surface: #ebe4d3;
+  --fg: #1c1a17;
+  --muted: #5c564c;
+  --grid-line: #8f887a;
+  --grid-bold: var(--fg);
+  --ink-given: var(--fg);
+  /* What the player writes */
+  --ink-pen: #1d3f8f;
+  --ink-pencil: #615c54;
+  --fill: var(--ink-pen);
+  /* State inks: highlighter and stamp */
+  --selection: #f3e58a;
+  --warn: #b3261e;
+  /* The primary button is a solid block of print ink. */
+  --accent: var(--fg);
+  --accent-fg: var(--bg);
+  --font-print: 'Besley', Georgia, serif;
+  --font-hand: 'Kalam', cursive;
+  --font-label: 'Libre Franklin', system-ui, sans-serif;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1d1b18;
-    --surface: #26231f;
-    --fg: #ece6da;
-    --muted: #a39c92;
-    --accent: #7fc1d8;
-    --accent-fg: #1d1b18;
-    --warn: #e07a6a;
-    --grid-line: #5a544c;
-    --grid-bold: #ece6da;
-    --ink-given: #ece6da;
-    --ink-pen: #9fd0e8;
-    --ink-pencil: #a8a197;
-    --selection: #353b2c;
-    --fill: #d8d2c6;
+    --bg: #1f1c18;
+    --surface: #2a2621;
+    --fg: #ece5d6;
+    --muted: #a9a194;
+    --grid-line: #6a6358;
+    --ink-pen: #9db9f5;
+    --ink-pencil: #aaa398;
+    /* Darker than the design's #4d4619 so pencil keeps 4.5:1 on it. */
+    --selection: #3d3713;
+    --warn: #f08a7c;
   }
 }
 * {
@@ -41,9 +44,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font:
-    16px/1.5 system-ui,
-    sans-serif;
+  font: 500 16px/1.5 var(--font-label);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
   /* Panning only: no pinch zoom and no double-tap zoom anywhere in the app. */
@@ -62,7 +63,7 @@ input {
 main {
   max-width: 40rem;
   margin: 0 auto;
-  padding: calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  padding: calc(12px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom));
 }
 h1 {
   font-size: 1.4rem;
@@ -76,11 +77,11 @@ button {
   min-height: 48px;
   min-width: 48px;
   padding: 0 1rem;
-  font: inherit;
+  font: 700 16px/1.25 var(--font-print);
   color: var(--fg);
-  background: var(--surface);
-  border: 1px solid var(--grid-line);
-  border-radius: 8px;
+  background: none;
+  border: 1.5px solid var(--fg);
+  border-radius: 2px;
   touch-action: manipulation;
 }
 button.primary {
@@ -104,10 +105,16 @@ input[type='text'] {
   padding: 0 0.75rem;
   font: inherit;
   color: var(--fg);
-  background: var(--surface);
+  background: none;
   border: 1px solid var(--grid-line);
-  border-radius: 8px;
+  border-radius: 2px;
   width: 100%;
+}
+/* Small caps label: running heads, row labels, tool names. */
+.label {
+  font: 700 11px/1.3 var(--font-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 .row {
   display: flex;

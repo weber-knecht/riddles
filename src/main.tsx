@@ -2,6 +2,7 @@ import { render } from 'preact'
 import { App } from './app'
 import { Bench } from './shell/Bench'
 import { plugins } from './core/registry'
+import './fonts.css'
 import './styles.css'
 
 const root = document.getElementById('app')

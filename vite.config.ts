@@ -29,9 +29,9 @@ export default defineConfig({
         scope: BASE,
         display: 'standalone',
         orientation: 'portrait',
-        // Dark, like the dark theme: the splash screen does not flash white.
-        background_color: '#1d1b18',
-        theme_color: '#1d1b18',
+        // The dark paper colour: the splash screen does not flash white.
+        background_color: '#1f1c18',
+        theme_color: '#1f1c18',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -44,7 +44,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,webmanifest,woff2}'],
         navigateFallback: `${BASE}index.html`,
       },
     }),
